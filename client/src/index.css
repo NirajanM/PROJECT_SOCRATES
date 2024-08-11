@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+#root {
+  max-width: 1700px;
+  margin-inline: auto;
+  padding-inline: 4px;
+}
+
+div.leaflet-bottom.leaflet-right {
+  display: none;
+}
