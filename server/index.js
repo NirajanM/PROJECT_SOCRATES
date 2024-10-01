@@ -24,10 +24,10 @@ app.get("/", (req, res) => {
 });
 
 app.get("/users", async (req, res) => {
-  const citiesCol = collection(db, "Users");
-  const citySnapshot = await getDocs(citiesCol);
-  const cityList = citySnapshot.docs.map((doc) => doc.data());
-  return cityList;
+  const userCollection = collection(db, "Users");
+  const UDoc = await getDocs(userCollection);
+  const UsersData = UDoc.docs.map((doc) => doc.data());
+  res.json(UsersData);
 });
 
 app.listen(port, () => {
