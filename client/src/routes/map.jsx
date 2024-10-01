@@ -41,7 +41,12 @@ export default function MapPage() {
               onCreated={handleCreated}
               // onEdited={handleEdited}
               // onDeleted={handleDeleted}
-              draw={{}}
+              draw={{
+                circle: false,
+                circlemarker: false,
+                polyline: false,
+                rectangle: false,
+              }}
             />
           </FeatureGroup>
 
