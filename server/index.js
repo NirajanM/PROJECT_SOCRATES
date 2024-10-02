@@ -1,35 +1,28 @@
-const { initializeApp } = require("firebase/app");
-const { getFirestore, collection, getDocs } = require("firebase/firestore");
-const express = require("express");
+import express from "express";
+import cors from "cors";
+
+import config from "./config.js";
+import {
+  createUser,
+  deleteUser,
+  getUsers,
+} from "./controllers/userControllers.js";
+
 const app = express();
-const port = 3000;
-require("dotenv").config();
 
-const firebaseConfig = {
-  apiKey: process.env.apiKey,
-  authDomain: process.env.authDomain,
-  projectId: process.env.projectId,
-  storageBucket: process.env.storageBucket,
-  messagingSenderId: process.env.messagingSenderId,
-  appId: process.env.appId,
-  measurementId: process.env.measurementId,
-};
-const fireApp = initializeApp(firebaseConfig);
-const db = getFirestore(fireApp);
-
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-app.get("/users", async (req, res) => {
-  const userCollection = collection(db, "Users");
-  const UDoc = await getDocs(userCollection);
-  const UsersData = UDoc.docs.map((doc) => doc.data());
-  res.json(UsersData);
-});
+app.get("/users", getUsers);
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.post("/createuser", createUser);
+
+app.delete("/deleteuser/:uid", deleteUser);
+
+app.listen(config.port, () => {
+  console.log(`Server running at ${config.hostUrl}`);
 });
