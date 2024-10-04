@@ -7,7 +7,7 @@ export default function Home() {
       <div className="flex flex-col gap-2 h-screen w-full items-center justify-center">
         <span>Project SOCRATES</span>
         <Button asChild>
-          <Link to={"/map-page"}>Map</Link>
+          <Link to={"/map"}>Map</Link>
         </Button>
       </div>
     </>
