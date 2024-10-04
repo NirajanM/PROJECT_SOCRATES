@@ -70,12 +70,12 @@ export default function UsersPage() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+        {Users?.data?.map((user) => (
+          <TableRow key={user.uid}>
+            <TableCell className="font-medium">{user.uid}</TableCell>
+            <TableCell>{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-right"></TableCell>
           </TableRow>
         ))}
       </TableBody>

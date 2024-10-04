@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000";
+// const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://socrates-backend.onrender.com";
 // const token = import.meta.env.VITE_TOKEN;
 
 // const headers = {
