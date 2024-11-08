@@ -1,62 +1,62 @@
-// src/main.jsx
+// main.jsx
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
-import Root from "./routes/root";
+import Root from "./routes/root"; // Root layout
 import ErrorPage from "./error-page";
 import MapPage from "./routes/map";
 import HomePage from "./routes/home";
 import UsersPage from "./routes/users";
 import LoginPage from "./routes/LoginPage";
 import SignupPage from "./routes/SignupPage";
-import ProtectedRoute from "./components/protectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import useAuthStore from "./store/authStore"; // Zustand store for authentication
 
-const queryClient = new QueryClient();
-
-// Define routes with protected paths
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />, // Root layout or main layout component
+    element: <Root />, // Routes with layout
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "login",
-        element: <LoginPage />, // Login page component
+        index: true, // Home page with layout
+        element: (
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        ),
       },
       {
-        path: "signup",
-        element: <SignupPage />, // Signup page component
+        path: "map",
+        element: (
+          <ProtectedRoute>
+            <MapPage />
+          </ProtectedRoute>
+        ),
       },
       {
-        path: "/",
-        element: <ProtectedRoute />, // Protects the main routes
-        children: [
-          {
-            index: true,
-            element: <HomePage />, // Home page component
-          },
-          {
-            path: "map",
-            element: <MapPage />, // Map page component
-          },
-          {
-            path: "users",
-            element: <UsersPage />, // Users page component
-          },
-        ],
+        path: "users",
+        element: (
+          <ProtectedRoute>
+            <UsersPage />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
+  {
+    path: "/login", // Login page without layout
+    element: <LoginPage />,
+  },
+  {
+    path: "/signup", // Signup page without layout
+    element: <SignupPage />,
+  },
 ]);
 
-// Check for existing authentication on initial load
-const authStore = useAuthStore.getState();
-authStore.checkAuth(); // Verifies if the user is authenticated
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
