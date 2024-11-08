@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, error, loading } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,10 +65,15 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter>
           <p className="text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-primary hover:underline">
+            Not a registered supervisor?{" "}
+            <span
+              onClick={() => {
+                navigate("/signup");
+              }}
+              className="text-primary hover:underline cursor-pointer"
+            >
               Sign up
-            </Link>
+            </span>
           </p>
         </CardFooter>
       </Card>
