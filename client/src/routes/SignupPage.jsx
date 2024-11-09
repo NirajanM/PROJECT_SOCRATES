@@ -13,31 +13,36 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useAuthStore from "../store/authStore";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const { signup, error, loading } = useAuthStore();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!name || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields");
+      alert("Please fill in all fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      alert("Passwords do not match");
       return;
     }
 
-    // Here you would typically handle the signup logic
-    console.log("Signing up...", { name, email, password });
+    try {
+      await signup(email, password, name);
+      navigate("/login"); // Redirect to login page after successful signup
+    } catch (error) {
+      console.error("Signup error:", error);
+    }
   };
 
   return (
@@ -46,7 +51,7 @@ export default function SignupPage() {
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
           <CardDescription>
-            fill in the details to register as a supervisor
+            Fill in the details to register as a supervisor
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -92,8 +97,8 @@ export default function SignupPage() {
               </div>
             </div>
             {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
-            <Button className="w-full mt-4" type="submit">
-              Sign Up
+            <Button className="w-full mt-4" type="submit" disabled={loading}>
+              {loading ? "Signing Up..." : "Sign Up"}
             </Button>
           </form>
         </CardContent>
@@ -101,9 +106,7 @@ export default function SignupPage() {
           <p className="text-sm text-muted-foreground">
             Already a registered supervisor?{" "}
             <span
-              onClick={() => {
-                navigate("/login");
-              }}
+              onClick={() => navigate("/login")}
               className="text-primary hover:underline cursor-pointer"
             >
               Login

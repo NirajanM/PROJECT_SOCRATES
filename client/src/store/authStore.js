@@ -1,4 +1,3 @@
-// src/store/authStore.js
 import { create } from "zustand";
 import { auth } from "../firebase";
 import Cookies from "js-cookie";
@@ -18,7 +17,22 @@ const useAuthStore = create((set) => ({
   error: null,
   loading: false,
 
-  signup: async (email, password) => {
+  checkUserAuth: () => {
+    const token = Cookies.get("authToken");
+    if (token) {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          set({ user });
+        } else {
+          set({ user: null });
+        }
+      });
+    } else {
+      set({ user: null });
+    }
+  },
+
+  signup: async (email, password, name) => {
     set({ loading: true, error: null });
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -28,11 +42,11 @@ const useAuthStore = create((set) => ({
       );
       const user = userCredential.user;
 
-      await setDoc(doc(firestore, "Supervisors", user.uid), {
+      await setDoc(doc(firestore, "supervisors", user.uid), {
         email: user.email,
         uid: user.uid,
+        name,
         createdAt: new Date().toISOString(),
-        numerators: [],
       });
 
       const token = await getIdToken(user);
@@ -76,18 +90,6 @@ const useAuthStore = create((set) => ({
     await signOut(auth);
     Cookies.remove("authToken");
     set({ user: null, loading: false });
-  },
-
-  // Optionally, add a method to check token validity
-  checkAuth: () => {
-    const token = Cookies.get("authToken");
-    if (token) {
-      onAuthStateChanged(auth, (user) => {
-        set({ user });
-      });
-    } else {
-      set({ user: null });
-    }
   },
 }));
 

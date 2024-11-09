@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useAuthStore from "../store/authStore";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,7 +22,18 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
+
+    if (!email || !password) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    try {
+      await login(email, password);
+      navigate("/");
+    } catch (error) {
+      console.error("Signup error:", error);
+    }
   };
 
   return (
