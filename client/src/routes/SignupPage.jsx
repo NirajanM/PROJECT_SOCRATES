@@ -38,8 +38,7 @@ export default function SignupPage() {
     }
 
     try {
-      await signup(email, password, name);
-      navigate("/login"); // Redirect to login page after successful signup
+      await signup(email, password, name, navigate);
     } catch (error) {
       console.error("Signup error:", error);
     }

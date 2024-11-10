@@ -34,7 +34,7 @@ const useAuthStore = create(
       }
     },
 
-    signup: async (email, password, name) => {
+    signup: async (email, password, name, navigate) => {
       set({ loading: true, error: null });
       try {
         const userCredential = await createUserWithEmailAndPassword(
@@ -59,6 +59,7 @@ const useAuthStore = create(
         });
 
         set({ user, loading: false });
+        navigate("/login");
       } catch (error) {
         set({ error: error.message, loading: false });
       }
