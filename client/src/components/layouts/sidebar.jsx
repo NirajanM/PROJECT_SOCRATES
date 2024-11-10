@@ -19,7 +19,7 @@ function UserAvatar({ user }) {
     return (
       <Avatar className="">
         <AvatarImage src="https://github.com/shadcn.png" alt="Guest avatar" />
-        <AvatarFallback className="bg-gray-300 text-white">
+        <AvatarFallback className="bg-gray-400/90 text-white">
           <User className="h-4 w-4" />
         </AvatarFallback>
       </Avatar>
@@ -33,7 +33,7 @@ function UserAvatar({ user }) {
   return (
     <Avatar className="">
       <AvatarImage src={user?.photoURL} alt={user.email} />
-      <AvatarFallback delayMs={600} className="bg-gray-300 text-white">
+      <AvatarFallback delayMs={600} className="bg-gray-400/90 text-white">
         {initials || <User className="h-4 w-4" />}
       </AvatarFallback>
     </Avatar>
