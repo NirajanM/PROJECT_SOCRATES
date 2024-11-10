@@ -22,15 +22,12 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!email || !password) {
       alert("Please fill in all fields");
       return;
     }
-
     try {
-      await login(email, password);
-      navigate("/");
+      await login(email, password, navigate);
     } catch (error) {
       console.error("Signup error:", error);
     }
