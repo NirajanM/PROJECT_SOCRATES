@@ -57,7 +57,7 @@ export default function LayoutWithSidebar() {
 
   const menuItems = [
     { icon: Home, label: "Main", goto: "/" },
-    { icon: Users, label: "Users", goto: "/users" },
+    { icon: Users, label: "Dashboard", goto: "/dashboard" },
     { icon: Map, label: "Map", goto: "/map" },
   ];
 
@@ -79,7 +79,7 @@ export default function LayoutWithSidebar() {
         } md:translate-x-0 md:static fixed z-30`}
       >
         <div className="flex items-center justify-between p-4">
-          <h2 className="text-xl font-bold">SOCRATES</h2>
+          <h2 className="text-xl lg:text-2xl font-bold">SOCRATES</h2>
           <Button
             variant="ghost"
             size="icon"

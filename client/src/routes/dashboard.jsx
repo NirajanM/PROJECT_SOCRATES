@@ -37,7 +37,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function UsersPage() {
+export default function Dashboard() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const Users = useQuery({

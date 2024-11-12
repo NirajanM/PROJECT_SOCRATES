@@ -9,9 +9,9 @@ import Root from "./routes/root";
 import ErrorPage from "./error-page";
 import MapPage from "./routes/map";
 import HomePage from "./routes/home";
-import UsersPage from "./routes/users";
 import LoginPage from "./routes/LoginPage";
 import SignupPage from "./routes/SignupPage";
+import Dashboard from "./routes/dashboard";
 
 const router = createBrowserRouter([
   {
@@ -28,8 +28,8 @@ const router = createBrowserRouter([
         element: <MapPage />,
       },
       {
-        path: "users",
-        element: <UsersPage />,
+        path: "dashboard",
+        element: <Dashboard />,
       },
     ],
   },
