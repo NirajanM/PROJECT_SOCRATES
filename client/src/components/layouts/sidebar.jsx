@@ -71,15 +71,17 @@ export default function LayoutWithSidebar() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-white">
       {/* Sidebar */}
       <aside
-        className={`bg-white w-64 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${
+        className={`bg-slate-50 w-64 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 md:static fixed z-30`}
       >
         <div className="flex items-center justify-between p-4">
-          <h2 className="text-xl lg:text-2xl font-bold">SOCRATES</h2>
+          <h2 className="text-xl lg:text-2xl font-bold text-[#555555]">
+            SOCRATES
+          </h2>
           <Button
             variant="ghost"
             size="icon"
@@ -91,7 +93,7 @@ export default function LayoutWithSidebar() {
           </Button>
         </div>
         <ScrollArea className="flex-grow">
-          <nav className="p-4 space-y-2">
+          <nav className="py-4 space-y-2">
             {menuItems.map((item, index) => (
               <Button
                 key={index}
