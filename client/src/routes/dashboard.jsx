@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchData } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -26,6 +27,7 @@ import {
   Shield,
   LogIn,
   UserPlus,
+  Plus,
 } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
@@ -92,51 +94,88 @@ export default function Dashboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Users?.data?.map((user) => (
-              <TableRow key={user.uid}>
-                <TableCell className="font-medium">{user.uid}</TableCell>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4 mr-2" />
-                      View
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Edit2 className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                        <span className="sr-only">More options</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>User Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>
-                        <UserCog className="mr-2 h-4 w-4" />
-                        <span>Edit User Details</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Shield className="mr-2 h-4 w-4" />
-                        <span>Change Permissions</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <UserMinus className="mr-2 h-4 w-4" />
-                        <span>Deactivate User</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+            {Users.isLoading
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-32" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-48" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Skeleton className="h-8 w-16" />
+                        <Skeleton className="h-8 w-16" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Skeleton className="h-8 w-8 ml-auto" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              : Users.data?.map((user) => (
+                  <TableRow key={user.uid}>
+                    <TableCell className="font-medium">{user.uid}</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-2" />
+                          View
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">More options</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>User Actions</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <UserCog className="mr-2 h-4 w-4" />
+                            <span>Edit User Details</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Shield className="mr-2 h-4 w-4" />
+                            <span>Change Permissions</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            <UserMinus className="mr-2 h-4 w-4" />
+                            <span>Deactivate User</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={5}>
+                <Button
+                  onClick={() => {
+                    /* Add logic to create new user */
+                  }}
+                  className="w-full text-slate-600"
+                  variant="outline"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create New User
+                </Button>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </div>

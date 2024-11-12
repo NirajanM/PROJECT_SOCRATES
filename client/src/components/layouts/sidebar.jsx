@@ -73,13 +73,18 @@ export default function LayoutWithSidebar() {
   return (
     <div className="flex h-screen bg-white">
       {/* Sidebar */}
-      <aside
+      {/* <aside
         className={`bg-slate-50 w-64 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 md:static fixed z-30`}
       >
         <div className="flex items-center justify-between p-4">
-          <h2 className="text-xl lg:text-2xl font-bold text-[#555555]">
+          <h2
+            className="text-xl font-semibold text-[#555555] cursor-pointer"
+            onClick={() => {
+              navigate("/");
+            }}
+          >
             SOCRATES
           </h2>
           <Button
@@ -107,12 +112,12 @@ export default function LayoutWithSidebar() {
             ))}
           </nav>
         </ScrollArea>
-      </aside>
+      </aside> */}
 
       {/* Main content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="backdrop-blur-sm border-b p-4 flex justify-between md:justify-end items-center">
-          <Button
+        <header className="backdrop-blur-sm border-b p-4 flex justify-between items-center">
+          {/* <Button
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
@@ -120,7 +125,15 @@ export default function LayoutWithSidebar() {
           >
             <Menu className="h-6 w-6" />
             <span className="sr-only">Open sidebar</span>
-          </Button>
+          </Button> */}
+          <h2
+            className="text-xl md:text-2xl font-semibold text-[#444444] cursor-pointer italic"
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            SOCRATES
+          </h2>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
