@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { fetchData } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -29,14 +30,17 @@ import {
 } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import AccessRestricted from "@/components/AccessRestricted";
+import { useState } from "react";
+import CreateUserForm from "@/components/CreateUserForm";
 
 export default function Dashboard() {
   const { user } = useAuthStore();
+  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["enumerators", user?.uid], // Cache key includes supervisorId
-    queryFn: () => fetchData(`/enumerators/${user?.uid}`), // Fetch enumerators for the supervisor
-    enabled: !!user?.uid, // Ensure query runs only if supervisorId exists
+    queryKey: ["enumerators", user?.uid],
+    queryFn: () => fetchData(`/enumerators/${user?.uid}`),
+    enabled: !!user?.uid,
   });
 
   if (!user) {
@@ -127,23 +131,29 @@ export default function Dashboard() {
                 ))}
             {!isLoading && !isError && data?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={5} className="text-center">
                   No enumerators found under your supervision.
                 </TableCell>
               </TableRow>
             )}
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={5}>
-                <Button
-                  onClick={() => {
-                    /* Add logic to create new user */
-                  }}
-                  className="w-full text-slate-600"
-                  variant="outline"
+                <Dialog
+                  open={isCreateUserOpen}
+                  onOpenChange={setIsCreateUserOpen}
                 >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create New User
-                </Button>
+                  <DialogTrigger asChild>
+                    <Button className="w-full text-slate-600" variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create New User
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <CreateUserForm
+                      onClose={() => setIsCreateUserOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
               </TableCell>
             </TableRow>
           </TableBody>
