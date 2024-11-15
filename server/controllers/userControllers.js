@@ -8,6 +8,8 @@ import {
   getDocs,
   updateDoc,
   deleteDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import User from "../model/userModel.js";
 
@@ -28,6 +30,20 @@ export const getUsers = async (req, res, next) => {
     const users = await getDocs(collection(db, "Users"));
     const UsersData = users.docs.map((doc) => doc.data());
     res.status(200).send(UsersData);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+export const getEnumerators = async (req, res, next) => {
+  const supervisorId = req.params.supervisorId;
+  try {
+    const users = await getDocs(collection(db, "Enumerators"));
+    const enumerators = users.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((user) => user.supervisor?.id === supervisorId); // Filtering by supervisor reference ID
+
+    res.status(200).json(enumerators);
   } catch (error) {
     res.status(400).send(error.message);
   }

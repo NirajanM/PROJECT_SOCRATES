@@ -5,6 +5,7 @@ import config from "./config.js";
 import {
   createUser,
   deleteUser,
+  getEnumerators,
   getUsers,
 } from "./controllers/userControllers.js";
 
@@ -18,6 +19,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/users", getUsers);
+
+app.get("/enumerators/:supervisorId", getEnumerators);
 
 app.post("/createuser", createUser);
 
