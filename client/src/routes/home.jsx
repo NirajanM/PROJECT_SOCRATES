@@ -6,15 +6,16 @@ export default function Home() {
   return (
     <div>
       <section className="bg-gradient-to-b from-primary/10 to-primary/5 py-16 md:py-24">
-        <div className="container mx-auto px-4 flex flex-col items-center justify-center text-center gap-6 md:gap-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary">
-            Welcome !
+        <div className="container mx-auto px-4 flex flex-col items-center justify-center text-center gap-6">
+          <h1 className="text-4xl lg:text-5xl font-bold text-primary">
+            Empowering Census Collection
           </h1>
-          <p className="text-base sm:text-lg md:text-xl max-w-2xl text-muted-foreground">
-            We are here to revolutionize census data collection and management
-            for a smarter future
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl max-w-2xl text-muted-foreground">
+            Seamless Management for Supervisors and Numerators. We are here to
+            revolutionize census data collection and management for a smarter
+            future.
           </p>
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-4">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-4 pt-12">
             <Button asChild size="lg" className="text-sm sm:text-base">
               <Link to="/dashboard">Access Supervisor Dashboard</Link>
             </Button>

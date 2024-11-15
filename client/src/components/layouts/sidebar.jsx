@@ -127,12 +127,12 @@ export default function LayoutWithSidebar() {
             <span className="sr-only">Open sidebar</span>
           </Button> */}
           <h2
-            className="text-xl md:text-2xl font-semibold text-[#444444] cursor-pointer italic"
+            className="text-xl font-semibold text-[#444444] cursor-pointer"
             onClick={() => {
               navigate("/");
             }}
           >
-            SOCRATES
+            S O C R A T E S
           </h2>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

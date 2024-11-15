@@ -59,7 +59,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="flex flex-col space-y-4">
             <p className="text-sm text-muted-foreground">
-              You cannot have numerators under you as a guest. Please login or
+              You cannot have enumerators under you as a guest. Please login or
               sign up as a supervisor to continue.
             </p>
             <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
