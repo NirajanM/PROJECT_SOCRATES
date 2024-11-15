@@ -127,7 +127,7 @@ export default function LayoutWithSidebar() {
             <span className="sr-only">Open sidebar</span>
           </Button> */}
           <h2
-            className="text-xl lg:text-2xl font-semibold text-[#444444] cursor-pointer tracking-[.23em] lg:tracking-[.27em]"
+            className="text-xl lg:text-2xl font-semibold text-[#444444] cursor-pointer tracking-[.23em]"
             onClick={() => {
               navigate("/");
             }}
