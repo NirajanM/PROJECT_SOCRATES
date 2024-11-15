@@ -25,59 +25,22 @@ import {
   UserCog,
   UserMinus,
   Shield,
-  LogIn,
-  UserPlus,
   Plus,
 } from "lucide-react";
 import useAuthStore from "@/store/authStore";
-import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import AccessRestricted from "@/components/AccessRestricted";
 
 export default function Dashboard() {
   const { user } = useAuthStore();
-  const navigate = useNavigate();
-  const Users = useQuery({
-    queryKey: ["Users"],
-    queryFn: () => fetchData(`/users`),
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["enumerators", user?.uid], // Cache key includes supervisorId
+    queryFn: () => fetchData(`/enumerators/${user?.uid}`), // Fetch enumerators for the supervisor
+    enabled: !!user?.uid, // Ensure query runs only if supervisorId exists
   });
 
   if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-[80vh] md:p-4">
-        <Card className="w-full max-w-[450px] mx-auto">
-          <CardHeader>
-            <CardTitle>Access Restricted</CardTitle>
-            <CardDescription>
-              You need to be logged in to view this content.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col space-y-4">
-            <p className="text-sm text-muted-foreground">
-              You cannot have enumerators under you as a guest. Please login or
-              sign up as a supervisor to continue.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-              <Button onClick={() => navigate("/login")} className="w-full">
-                <LogIn className="mr-2 h-4 w-4" /> Login
-              </Button>
-              <Button
-                onClick={() => navigate("/signup")}
-                variant="outline"
-                className="w-full"
-              >
-                <UserPlus className="mr-2 h-4 w-4" /> Sign Up
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <AccessRestricted />;
   }
 
   return (
@@ -94,7 +57,7 @@ export default function Dashboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Users.isLoading
+            {isLoading
               ? Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>
@@ -117,9 +80,9 @@ export default function Dashboard() {
                     </TableCell>
                   </TableRow>
                 ))
-              : Users.data?.map((user) => (
-                  <TableRow key={user.uid}>
-                    <TableCell className="font-medium">{user.uid}</TableCell>
+              : data?.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.id}</TableCell>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
@@ -162,6 +125,13 @@ export default function Dashboard() {
                     </TableCell>
                   </TableRow>
                 ))}
+            {!isLoading && !isError && data?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  No enumerators found under your supervision.
+                </TableCell>
+              </TableRow>
+            )}
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={5}>
                 <Button
