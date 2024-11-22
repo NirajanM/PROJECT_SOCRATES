@@ -1,60 +1,93 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import useAuthStore from "../store/authStore";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { fetchData, patchData } from "@/utils/api";
 
-export default function CreateUserForm({ onClose }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function AssignEnumerator({ onClose }) {
+  const { user } = useAuthStore();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Creating user:", { name, email, password });
-    onClose();
+  // Fetch assignable enumerators
+  const {
+    data: enumerators,
+    isLoading: isFetching,
+    error: fetchError,
+  } = useQuery({
+    queryKey: ["assignableEnumerators"],
+    queryFn: () => fetchData("/assignable-enumerators"),
+  });
+
+  // Assign enumerator mutation
+  const { mutate: assignEnumerator, isLoading: isAssigning } = useMutation({
+    mutationFn: (enumeratorId) =>
+      patchData(`/assign-enumerator/${enumeratorId}`),
+    onSuccess: () => {
+      alert("Enumerator assigned successfully!");
+      onClose(); // Close dialog on success
+    },
+    onError: (error) => {
+      setErrorMessage(error.message || "Failed to assign enumerator.");
+    },
+  });
+
+  // Handle assignment action
+  const handleAssign = (enumeratorId) => {
+    if (!user) {
+      setErrorMessage(
+        "You must be logged in as a supervisor to assign an enumerator."
+      );
+      return;
+    }
+    assignEnumerator(enumeratorId);
   };
 
+  useEffect(() => {
+    if (fetchError) {
+      setErrorMessage(fetchError.message || "Failed to fetch enumerators.");
+    }
+  }, [fetchError]);
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
       <DialogHeader>
-        <DialogTitle>Create New Enumerator</DialogTitle>
+        <DialogTitle>Assignable Enumerators</DialogTitle>
       </DialogHeader>
-      <div>
-        <Label htmlFor="name">Name</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
+      {isFetching ? (
+        <p>Loading enumerators...</p>
+      ) : enumerators?.length ? (
+        <ul>
+          {enumerators.map((enumerator) => (
+            <li
+              key={enumerator.id}
+              className="flex justify-between items-center"
+            >
+              <p>
+                {enumerator.name} - {enumerator.email}
+              </p>
+              <Button
+                onClick={() => handleAssign(enumerator.id)}
+                disabled={isAssigning}
+              >
+                {isAssigning ? "Assigning..." : "Select this User"}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No assignable enumerators found.</p>
+      )}
+      {errorMessage && (
+        <p className="text-sm text-red-500 mt-2">{errorMessage}</p>
+      )}
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline" onClick={onClose}>
-          Cancel
+          Close
         </Button>
-        <Button type="submit">Create User</Button>
       </div>
-    </form>
+    </div>
   );
 }

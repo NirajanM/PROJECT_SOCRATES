@@ -1,21 +1,29 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
-const BASE_URL = import.meta.env.VITE_FIREBASE_BASEURL;
-// const BASE_URL = "https://socrates-backend.onrender.com";
-// const token = import.meta.env.VITE_TOKEN;
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_FIREBASE_BASEURL, // Set your base URL
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-// const headers = {
-//     accept: 'application/json',
-//     Authorization: 'Bearer ' + token,
-// };
+// Intercept all requests and add the Authorization token if present
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get("authToken");
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-export const fetchData = async (endroute, params) => {
-  try {
-    // const { data } = await axios.get(BASE_URL + endroute, { headers, params });
-    const { data } = await axios.get(BASE_URL + endroute, { params });
-    return data;
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
+export const fetchData = (url, options = {}) => {
+  return axiosInstance.get(url, options).then((res) => res.data);
+};
+
+export const patchData = (url, data) => {
+  return axiosInstance.patch(url, data).then((res) => res.data);
 };

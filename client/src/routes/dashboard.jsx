@@ -34,17 +34,26 @@ import { useState } from "react";
 import CreateUserForm from "@/components/CreateUserForm";
 
 export default function Dashboard() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["enumerators", user?.uid],
+    queryKey: ["enumerators"],
     queryFn: () => fetchData(`/enumerators/${user?.uid}`),
     enabled: !!user?.uid,
+    retry: 1,
+    onError: (err) => {
+      console.error("Error fetching enumerators:", err);
+      if (err.response?.status === 401) {
+        setIsSessionExpired(true);
+        logout();
+      }
+    },
   });
 
   if (!user) {
-    return <AccessRestricted />;
+    return <AccessRestricted sessionExpired={isSessionExpired} />;
   }
 
   return (
@@ -145,7 +154,7 @@ export default function Dashboard() {
                   <DialogTrigger asChild>
                     <Button className="w-full text-slate-600" variant="outline">
                       <Plus className="mr-2 h-4 w-4" />
-                      Create New User
+                      Select Free Enumerators
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
