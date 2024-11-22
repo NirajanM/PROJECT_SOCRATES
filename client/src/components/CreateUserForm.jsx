@@ -12,9 +12,11 @@ import { Loader2, UserPlus } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchData, patchData } from "@/utils/api";
+import useUserActionsStore from "@/store/userActionsStore";
 
-export default function AssignEnumerator({ onClose, refetch }) {
-  const { user } = useAuthStore(); // Assume 'user' contains the supervisor data
+export default function AssignEnumerator({ refetch }) {
+  const { user } = useAuthStore();
+  const { closeEnumDialog } = useUserActionsStore();
   const [errorMessage, setErrorMessage] = useState("");
 
   const {
@@ -31,7 +33,7 @@ export default function AssignEnumerator({ onClose, refetch }) {
       patchData(`/assign-enumerator/${enumeratorId}`, { supervisorId }), // Send supervisorId with enumeratorId
     onSuccess: () => {
       alert("Enumerator assigned successfully!");
-      onClose();
+      closeEnumDialog();
       refetch();
     },
     onError: (error) => {
@@ -118,7 +120,7 @@ export default function AssignEnumerator({ onClose, refetch }) {
       )}
 
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onClose}>
+        <Button type="button" variant="outline" onClick={closeEnumDialog}>
           Cancel
         </Button>
       </DialogFooter>

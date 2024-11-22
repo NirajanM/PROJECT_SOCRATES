@@ -20,10 +20,11 @@ import { useState } from "react";
 import AssignEnumerator from "@/components/CreateUserForm";
 import { UserActionsDropdown } from "@/components/UserActionsDropdown";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import useUserActionsStore from "@/store/userActionsStore";
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
-  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
+  const { isEnumDialogOpen, closeEnumDialog } = useUserActionsStore();
   const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -112,10 +113,7 @@ export default function Dashboard() {
             )}
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={5}>
-                <Dialog
-                  open={isCreateUserOpen}
-                  onOpenChange={setIsCreateUserOpen}
-                >
+                <Dialog open={isEnumDialogOpen} onOpenChange={closeEnumDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full text-slate-600" variant="outline">
                       <Plus className="mr-2 h-4 w-4" />
@@ -123,10 +121,7 @@ export default function Dashboard() {
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
-                    <AssignEnumerator
-                      onClose={() => setIsCreateUserOpen(false)}
-                      refetch={refetch}
-                    />
+                    <AssignEnumerator refetch={refetch} />
                   </DialogContent>
                 </Dialog>
               </TableCell>

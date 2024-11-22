@@ -8,6 +8,7 @@ const useUserActionsStore = create(
     isConfirmationDialogOpen: false,
     enumerators: [],
     assignEnumeratorLoading: false,
+    isEnumDialogOpen: false,
 
     // Set the selected user and action type for confirmation dialog
     setUserActionSelection: (user, actionType) => {
@@ -17,10 +18,7 @@ const useUserActionsStore = create(
     // Handle confirmation of action (e.g., deactivate or remove)
     handleActionConfirmation: async () => {
       const { selectedUser, actionType } = get();
-
       if (!selectedUser || !actionType) return;
-
-      // Handle action (e.g., deactivate or remove)
       try {
         if (actionType === "deactivate") {
           console.log(`Deactivating user: ${selectedUser.name}`);
@@ -44,6 +42,10 @@ const useUserActionsStore = create(
     // Handle closing the confirmation dialog
     closeConfirmationDialog: () => {
       set({ isConfirmationDialogOpen: false });
+    },
+
+    closeEnumDialog: () => {
+      set({ isEnumDialogOpen: false });
     },
   }))
 );
