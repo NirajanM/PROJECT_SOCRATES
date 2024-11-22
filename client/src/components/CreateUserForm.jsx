@@ -1,17 +1,22 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader2, UserPlus } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchData, patchData } from "@/utils/api";
 
-export default function AssignEnumerator({ onClose }) {
-  const { user } = useAuthStore();
+export default function AssignEnumerator({ onClose, refetch }) {
+  const { user } = useAuthStore(); // Assume 'user' contains the supervisor data
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Fetch assignable enumerators
   const {
     data: enumerators,
     isLoading: isFetching,
@@ -21,20 +26,19 @@ export default function AssignEnumerator({ onClose }) {
     queryFn: () => fetchData("/assignable-enumerators"),
   });
 
-  // Assign enumerator mutation
   const { mutate: assignEnumerator, isLoading: isAssigning } = useMutation({
-    mutationFn: (enumeratorId) =>
-      patchData(`/assign-enumerator/${enumeratorId}`),
+    mutationFn: ({ enumeratorId, supervisorId }) =>
+      patchData(`/assign-enumerator/${enumeratorId}`, { supervisorId }), // Send supervisorId with enumeratorId
     onSuccess: () => {
       alert("Enumerator assigned successfully!");
-      onClose(); // Close dialog on success
+      onClose();
+      refetch();
     },
     onError: (error) => {
       setErrorMessage(error.message || "Failed to assign enumerator.");
     },
   });
 
-  // Handle assignment action
   const handleAssign = (enumeratorId) => {
     if (!user) {
       setErrorMessage(
@@ -42,7 +46,7 @@ export default function AssignEnumerator({ onClose }) {
       );
       return;
     }
-    assignEnumerator(enumeratorId);
+    assignEnumerator({ enumeratorId, supervisorId: user.uid }); // Pass supervisor's UID here
   };
 
   useEffect(() => {
@@ -52,42 +56,72 @@ export default function AssignEnumerator({ onClose }) {
   }, [fetchError]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <DialogHeader>
-        <DialogTitle>Assignable Enumerators</DialogTitle>
+        <DialogTitle className="text-2xl font-semibold">
+          Assignable Enumerators List
+        </DialogTitle>
       </DialogHeader>
+
       {isFetching ? (
-        <p>Loading enumerators...</p>
+        <div className="flex justify-center items-center h-48">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
       ) : enumerators?.length ? (
-        <ul>
-          {enumerators.map((enumerator) => (
-            <li
-              key={enumerator.id}
-              className="flex justify-between items-center"
-            >
-              <p>
-                {enumerator.name} - {enumerator.email}
-              </p>
-              <Button
-                onClick={() => handleAssign(enumerator.id)}
-                disabled={isAssigning}
-              >
-                {isAssigning ? "Assigning..." : "Select this User"}
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <ScrollArea className="h-[400px] pr-4">
+          <div className="space-y-4">
+            {enumerators.map((enumerator) => (
+              <Card key={enumerator.id}>
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="flex items-center space-x-4">
+                    <Avatar>
+                      <AvatarImage
+                        src={enumerator.avatar}
+                        alt={enumerator.name}
+                      />
+                      <AvatarFallback>
+                        {enumerator.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{enumerator.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {enumerator.email}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => handleAssign(enumerator.id)}
+                    disabled={isAssigning}
+                    size="sm"
+                  >
+                    {isAssigning ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <UserPlus className="h-4 w-4 mr-2" />
+                    )}
+                    Select
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
       ) : (
-        <p>No assignable enumerators found.</p>
+        <div className="text-center py-8 text-muted-foreground">
+          No assignable enumerators found.
+        </div>
       )}
+
       {errorMessage && (
-        <p className="text-sm text-red-500 mt-2">{errorMessage}</p>
+        <p className="text-sm text-destructive mt-2">{errorMessage}</p>
       )}
-      <div className="flex justify-end space-x-2">
+
+      <DialogFooter>
         <Button type="button" variant="outline" onClick={onClose}>
-          Close
+          Cancel
         </Button>
-      </div>
+      </DialogFooter>
     </div>
   );
 }

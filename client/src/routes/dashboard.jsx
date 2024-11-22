@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -7,38 +9,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { fetchData } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Eye,
-  Edit2,
-  MoreVertical,
-  UserCog,
-  UserMinus,
-  Shield,
-  Plus,
-} from "lucide-react";
+import { Eye, Edit2, Plus } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import AccessRestricted from "@/components/AccessRestricted";
 import { useState } from "react";
-import CreateUserForm from "@/components/CreateUserForm";
+import AssignEnumerator from "@/components/CreateUserForm";
+import { UserActionsDropdown } from "@/components/UserActionsDropdown";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["enumerators"],
     queryFn: () => fetchData(`/enumerators/${user?.uid}`),
     enabled: !!user?.uid,
@@ -111,30 +99,7 @@ export default function Dashboard() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">More options</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>User Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <UserCog className="mr-2 h-4 w-4" />
-                            <span>Edit User Details</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Shield className="mr-2 h-4 w-4" />
-                            <span>Change Permissions</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <UserMinus className="mr-2 h-4 w-4" />
-                            <span>Deactivate User</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <UserActionsDropdown user={user} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -158,8 +123,9 @@ export default function Dashboard() {
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
-                    <CreateUserForm
+                    <AssignEnumerator
                       onClose={() => setIsCreateUserOpen(false)}
+                      refetch={refetch}
                     />
                   </DialogContent>
                 </Dialog>
@@ -168,6 +134,8 @@ export default function Dashboard() {
           </TableBody>
         </Table>
       </div>
+
+      <ConfirmationDialog />
     </div>
   );
 }

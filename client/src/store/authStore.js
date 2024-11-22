@@ -21,22 +21,32 @@ const useAuthStore = create(
     loading: false,
 
     checkUserAuth: () => {
+      set({ loading: true });
       const auth = getAuth();
-      const token = Cookies.get("authToken");
-      if (token) {
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          try {
             const freshToken = await user.getIdToken(true); // Force refresh
-            Cookies.set("authToken", freshToken); // Update token in cookies
-            set({ user });
-          } else {
-            set({ user: null });
+            Cookies.set("authToken", freshToken, {
+              expires: 7,
+              secure: true,
+              sameSite: "strict",
+            });
+            set({ user, loading: false });
+          } catch (error) {
+            console.error("Error refreshing token:", error);
             Cookies.remove("authToken");
+            set({
+              user: null,
+              loading: false,
+              error: "Session expired. Please log in again.",
+            });
           }
-        });
-      } else {
-        set({ user: null });
-      }
+        } else {
+          Cookies.remove("authToken");
+          set({ user: null, loading: false });
+        }
+      });
     },
 
     signup: async (email, password, name, navigate) => {
