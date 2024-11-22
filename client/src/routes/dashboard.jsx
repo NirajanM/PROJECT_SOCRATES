@@ -16,7 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Eye, Edit2, Plus } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import AccessRestricted from "@/components/AccessRestricted";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AssignEnumerator from "@/components/CreateUserForm";
 import { UserActionsDropdown } from "@/components/UserActionsDropdown";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -24,7 +24,8 @@ import useUserActionsStore from "@/store/userActionsStore";
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
-  const { isEnumDialogOpen, closeEnumDialog } = useUserActionsStore();
+  const { isEnumDialogOpen, toggleEnumDialogOpen, setRefetchEnumerators } =
+    useUserActionsStore();
   const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -40,6 +41,10 @@ export default function Dashboard() {
       }
     },
   });
+
+  useEffect(() => {
+    setRefetchEnumerators(refetch); // Store the refetch function in Zustand
+  }, [refetch, setRefetchEnumerators]);
 
   if (!user) {
     return <AccessRestricted sessionExpired={isSessionExpired} />;
@@ -113,15 +118,18 @@ export default function Dashboard() {
             )}
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={5}>
-                <Dialog open={isEnumDialogOpen} onOpenChange={closeEnumDialog}>
+                <Dialog
+                  open={isEnumDialogOpen}
+                  onOpenChange={toggleEnumDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button className="w-full text-slate-600" variant="outline">
                       <Plus className="mr-2 h-4 w-4" />
-                      Select Free Enumerators
+                      Select Assignable Enumerators
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
-                    <AssignEnumerator refetch={refetch} />
+                    <AssignEnumerator />
                   </DialogContent>
                 </Dialog>
               </TableCell>

@@ -9,6 +9,19 @@ const useUserActionsStore = create(
     enumerators: [],
     assignEnumeratorLoading: false,
     isEnumDialogOpen: false,
+    refetchEnumerators: null,
+
+    setRefetchEnumerators: (refetchFn) =>
+      set({ refetchEnumerators: refetchFn }),
+
+    triggerRefetchEnumerators: () => {
+      const refetch = get().refetchEnumerators;
+      if (refetch) {
+        refetch();
+      } else {
+        console.warn("Refetch function is not set yet.");
+      }
+    },
 
     // Set the selected user and action type for confirmation dialog
     setUserActionSelection: (user, actionType) => {
@@ -46,6 +59,14 @@ const useUserActionsStore = create(
 
     closeEnumDialog: () => {
       set({ isEnumDialogOpen: false });
+    },
+
+    openEnumDialog: () => {
+      set({ isEnumDialogOpen: true });
+    },
+
+    toggleEnumDialogOpen: () => {
+      set({ isEnumDialogOpen: !get().isEnumDialogOpen });
     },
   }))
 );

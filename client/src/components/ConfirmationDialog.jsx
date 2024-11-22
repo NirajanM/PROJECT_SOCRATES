@@ -10,21 +10,61 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import useUserActionsStore from "@/store/userActionsStore";
+import { useMutation } from "@tanstack/react-query";
+import { patchData } from "@/utils/api";
 
 export function ConfirmationDialog() {
   const {
+    selectedUser,
     actionType,
     isConfirmationDialogOpen,
-    handleActionConfirmation,
     closeConfirmationDialog,
+    triggerRefetchEnumerators,
   } = useUserActionsStore();
 
   const [confirmationText, setConfirmationText] = useState("");
+  const isConfirmTextValid =
+    confirmationText.trim().toLowerCase() === "confirm";
+
+  // Common onSuccess handler for both actions
+  const handleSuccess = (message) => {
+    console.log(message);
+    closeConfirmationDialog();
+    setConfirmationText(""); // Reset input
+    triggerRefetchEnumerators();
+  };
+
+  const deactivateUserMutation = useMutation({
+    mutationFn: () => patchData(`/deactivate-enumerator/${selectedUser.id}`),
+    onSuccess: () =>
+      handleSuccess(`User ${selectedUser.name} deactivated successfully.`),
+    onError: (error) => {
+      console.error("Deactivation failed:", error);
+    },
+  });
+
+  const removeSupervisionMutation = useMutation({
+    mutationFn: () => patchData(`/remove-supervision/${selectedUser.id}`),
+    onSuccess: () =>
+      handleSuccess(`Supervision removed for user ${selectedUser.name}.`),
+    onError: (error) => {
+      console.error("Supervision removal failed:", error);
+    },
+  });
+
+  const handleActionConfirm = () => {
+    if (!selectedUser || !actionType) return;
+
+    if (actionType === "deactivate") {
+      deactivateUserMutation.mutate();
+    } else if (actionType === "remove") {
+      removeSupervisionMutation.mutate();
+    }
+  };
 
   const handleSubmit = () => {
-    if (confirmationText.toLowerCase() === "confirm") {
-      handleActionConfirmation();
-      setConfirmationText("");
+    if (isConfirmTextValid) {
+      handleActionConfirm();
     }
   };
 
@@ -41,8 +81,8 @@ export function ConfirmationDialog() {
               : "Remove from Supervision"}
           </DialogTitle>
           <DialogDescription>
-            This action cannot be undone. Please type &quot;confirm&quot; to
-            proceed.
+            This action cannot be undone. Please type <strong>confirm</strong>{" "}
+            to proceed.
           </DialogDescription>
         </DialogHeader>
         <Input
@@ -56,9 +96,18 @@ export function ConfirmationDialog() {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={confirmationText.toLowerCase() !== "confirm"}
+            disabled={
+              !isConfirmTextValid ||
+              deactivateUserMutation.isLoading ||
+              removeSupervisionMutation.isLoading
+            }
           >
-            {actionType === "deactivate" ? "Deactivate" : "Remove"}
+            {deactivateUserMutation.isLoading ||
+            removeSupervisionMutation.isLoading
+              ? "Processing..."
+              : actionType === "deactivate"
+              ? "Deactivate"
+              : "Remove"}
           </Button>
         </DialogFooter>
       </DialogContent>

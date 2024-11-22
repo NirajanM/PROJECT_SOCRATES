@@ -14,9 +14,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchData, patchData } from "@/utils/api";
 import useUserActionsStore from "@/store/userActionsStore";
 
-export default function AssignEnumerator({ refetch }) {
+export default function AssignEnumerator() {
   const { user } = useAuthStore();
-  const { closeEnumDialog } = useUserActionsStore();
+  const { closeEnumDialog, triggerRefetchEnumerators } = useUserActionsStore();
   const [errorMessage, setErrorMessage] = useState("");
 
   const {
@@ -34,7 +34,7 @@ export default function AssignEnumerator({ refetch }) {
     onSuccess: () => {
       alert("Enumerator assigned successfully!");
       closeEnumDialog();
-      refetch();
+      triggerRefetchEnumerators();
     },
     onError: (error) => {
       setErrorMessage(error.message || "Failed to assign enumerator.");
