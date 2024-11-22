@@ -70,19 +70,53 @@ export const getAssignableEnumerators = async (req, res) => {
 
 export const assignEnumerator = async (req, res) => {
   const { enumeratorId } = req.params;
-  const supervisorId = req.user.uid; // Assume `req.user` contains the authenticated supervisor's UID
+  const { supervisorId } = req.body;
 
   try {
-    const enumeratorRef = db.collection("Enumerators").doc(enumeratorId); // Use admin SDK's Firestore
+    const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
 
-    // Update the enumerator document
+    const supervisorRef = db.collection("supervisors").doc(supervisorId);
+
     await enumeratorRef.update({
-      supervisor: supervisorId,
+      supervisor: supervisorRef,
       assignable: false,
     });
 
     res.status(200).json({ message: "Enumerator assigned successfully." });
   } catch (error) {
     res.status(500).json({ error: "Failed to assign enumerator." });
+  }
+};
+
+export const deactivateEnumerator = async (req, res) => {
+  const { enumeratorId } = req.params;
+
+  try {
+    const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
+
+    await enumeratorRef.update({
+      active: false,
+    });
+
+    res.status(200).json({ message: "Enumerator deactivated successfully." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to deactivate enumerator." });
+  }
+};
+
+export const removeSupervision = async (req, res) => {
+  const { enumeratorId } = req.params;
+
+  try {
+    const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
+
+    await enumeratorRef.update({
+      supervisor: admin.firestore.FieldValue.delete(),
+      assignable: true,
+    });
+
+    res.status(200).json({ message: "Supervision removed successfully." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to remove supervision." });
   }
 };

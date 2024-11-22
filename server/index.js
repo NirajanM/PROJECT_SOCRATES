@@ -5,10 +5,12 @@ import config from "./config.js";
 import {
   assignEnumerator,
   createUser,
+  deactivateEnumerator,
   deleteUser,
   getAssignableEnumerators,
   getEnumerators,
   getUsers,
+  removeSupervision,
 } from "./controllers/userControllers.js";
 
 import authenticateToken from "./middleware/authenticateToken.js";
@@ -36,6 +38,18 @@ app.patch(
   "/assign-enumerator/:enumeratorId",
   authenticateToken,
   assignEnumerator
+);
+
+app.patch(
+  "/deactivate-enumerator/:enumeratorId",
+  authenticateToken,
+  deactivateEnumerator
+);
+
+app.patch(
+  "/remove-supervision/:enumeratorId",
+  authenticateToken,
+  removeSupervision
 );
 
 app.listen(config.port, () => {
