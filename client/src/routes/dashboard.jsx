@@ -87,25 +87,43 @@ export default function Dashboard() {
                     </TableCell>
                   </TableRow>
                 ))
-              : data?.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.id}</TableCell>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
+              : data?.map((enumerator) => (
+                  <TableRow key={enumerator.id}>
+                    <TableCell
+                      className={
+                        !enumerator.active ? "opacity-50" : "font-medium"
+                      }
+                    >
+                      {enumerator.id}
+                    </TableCell>
+                    <TableCell className={!enumerator.active && "opacity-50"}>
+                      {enumerator.name}
+                    </TableCell>
+                    <TableCell className={!enumerator.active && "opacity-50"}>
+                      {enumerator.email}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!enumerator.active}
+                        >
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!enumerator.active}
+                        >
                           <Edit2 className="h-4 w-4 mr-2" />
                           Edit
                         </Button>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <UserActionsDropdown user={user} />
+                      <UserActionsDropdown user={enumerator} />
                     </TableCell>
                   </TableRow>
                 ))}

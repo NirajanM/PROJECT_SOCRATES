@@ -24,11 +24,15 @@ export function UserActionsDropdown({ user }) {
         <DropdownMenuLabel>User Actions</DropdownMenuLabel>
         <DropdownMenuItem
           onSelect={() => {
-            setUserActionSelection(user, "deactivate");
+            if (user.active) {
+              setUserActionSelection(user, "deactivate");
+            } else {
+              setUserActionSelection(user, "activate");
+            }
           }}
         >
           <UserMinus className="mr-2 h-4 w-4" />
-          <span>Deactivate User</span>
+          <span>{user.active ? "Deactivate User" : "Activate User"}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

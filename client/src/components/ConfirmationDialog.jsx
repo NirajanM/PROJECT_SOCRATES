@@ -28,11 +28,19 @@ export function ConfirmationDialog() {
 
   // Common onSuccess handler for both actions
   const handleSuccess = (message) => {
-    console.log(message);
     closeConfirmationDialog();
-    setConfirmationText(""); // Reset input
+    setConfirmationText("");
     triggerRefetchEnumerators();
   };
+
+  const activateUserMutation = useMutation({
+    mutationFn: () => patchData(`/activate-enumerator/${selectedUser.id}`),
+    onSuccess: () =>
+      handleSuccess(`User ${selectedUser.name} activated successfully.`),
+    onError: (error) => {
+      console.error("Activation failed:", error);
+    },
+  });
 
   const deactivateUserMutation = useMutation({
     mutationFn: () => patchData(`/deactivate-enumerator/${selectedUser.id}`),
@@ -57,6 +65,8 @@ export function ConfirmationDialog() {
 
     if (actionType === "deactivate") {
       deactivateUserMutation.mutate();
+    } else if (actionType === "activate") {
+      activateUserMutation.mutate();
     } else if (actionType === "remove") {
       removeSupervisionMutation.mutate();
     }
@@ -78,6 +88,8 @@ export function ConfirmationDialog() {
           <DialogTitle>
             {actionType === "deactivate"
               ? "Deactivate User"
+              : actionType === "activate"
+              ? "Activate User"
               : "Remove from Supervision"}
           </DialogTitle>
           <DialogDescription>
@@ -107,6 +119,8 @@ export function ConfirmationDialog() {
               ? "Processing..."
               : actionType === "deactivate"
               ? "Deactivate"
+              : actionType === "activate"
+              ? "Activate"
               : "Remove"}
           </Button>
         </DialogFooter>
