@@ -3,6 +3,7 @@ import cors from "cors";
 
 import config from "./config.js";
 import {
+  activateEnumerator,
   assignEnumerator,
   createUser,
   deactivateEnumerator,
@@ -44,6 +45,12 @@ app.patch(
   "/deactivate-enumerator/:enumeratorId",
   authenticateToken,
   deactivateEnumerator
+);
+
+app.patch(
+  "/activate-enumerator/:enumeratorId",
+  authenticateToken,
+  activateEnumerator
 );
 
 app.patch(

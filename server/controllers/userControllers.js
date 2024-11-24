@@ -104,6 +104,22 @@ export const deactivateEnumerator = async (req, res) => {
   }
 };
 
+export const activateEnumerator = async (req, res) => {
+  const { enumeratorId } = req.params;
+
+  try {
+    const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
+
+    await enumeratorRef.update({
+      active: true,
+    });
+
+    res.status(200).json({ message: "Enumerator activated successfully." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to activate enumerator." });
+  }
+};
+
 export const removeSupervision = async (req, res) => {
   const { enumeratorId } = req.params;
 
