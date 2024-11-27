@@ -5,7 +5,7 @@ import useGeofencingStore from "@/store/geofencingStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Eye, Edit2, MapPin } from "lucide-react";
+import { AlertCircle, Eye, MapPin, MapPinPlus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function EnumeratorGeofencing() {
@@ -80,8 +80,8 @@ export default function EnumeratorGeofencing() {
               View Mode
             </TabsTrigger>
             <TabsTrigger value="edit" className="flex items-center">
-              <Edit2 className="mr-2 h-4 w-4" />
-              Edit Mode
+              <MapPinPlus className="mr-2 h-4 w-4" />
+              Assign New Geofence
             </TabsTrigger>
           </TabsList>
         </Tabs>

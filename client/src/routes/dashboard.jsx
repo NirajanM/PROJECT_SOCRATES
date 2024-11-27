@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { fetchData } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Edit2, Plus } from "lucide-react";
+import { Eye, Edit2, Plus, PlusIcon, MapPinPlus } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import AccessRestricted from "@/components/AccessRestricted";
 import { useEffect, useState } from "react";
@@ -60,7 +60,7 @@ export default function Dashboard() {
               <TableHead className="w-[100px]">UID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Assigned Geo-fencings</TableHead>
+              <TableHead>Geo-fencings Data</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -125,8 +125,8 @@ export default function Dashboard() {
                             size="sm"
                             disabled={!enumerator.active}
                           >
-                            <Edit2 className="h-4 w-4 mr-2" />
-                            Edit
+                            <MapPinPlus className="h-4 w-4 mr-2" />
+                            Assign new
                           </Button>
                         </Link>
                       </div>
