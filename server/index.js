@@ -15,6 +15,7 @@ import {
 } from "./controllers/userControllers.js";
 
 import authenticateToken from "./middleware/authenticateToken.js";
+import { getGeofencingData } from "./controllers/geofencingControllers.js";
 
 const app = express();
 
@@ -34,6 +35,8 @@ app.get("/", (req, res) => {
 app.get("/enumerators/:supervisorId", authenticateToken, getEnumerators);
 
 app.get("/assignable-enumerators", authenticateToken, getAssignableEnumerators);
+
+app.get("/geofencing/:enumeratorId", getGeofencingData);
 
 app.patch(
   "/assign-enumerator/:enumeratorId",
