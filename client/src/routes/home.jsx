@@ -11,7 +11,7 @@ export default function Home() {
             Empowering Census Collection
           </h1>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl max-w-2xl text-muted-foreground">
-            Seamless Management for Supervisors and Numerators. We are here to
+            Seamless Management for Supervisors and Enumerators. We are here to
             revolutionize census data collection and management for a smarter
             future.
           </p>
