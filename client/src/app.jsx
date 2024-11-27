@@ -12,6 +12,9 @@ import HomePage from "./routes/home";
 import LoginPage from "./routes/LoginPage";
 import SignupPage from "./routes/SignupPage";
 import Dashboard from "./routes/dashboard";
+import EnumeratorGeofencing from "./components/layouts/EnumeratorGeofencing";
+import ViewGeofencing from "./routes/ViewGeofencing";
+import EditGeofencing from "./routes/EditGeofencing";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +33,20 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "enumerators/:enumeratorId/geofencing",
+        element: <EnumeratorGeofencing />,
+        children: [
+          {
+            path: "view",
+            element: <ViewGeofencing />,
+          },
+          {
+            path: "edit",
+            element: <EditGeofencing />,
+          },
+        ],
       },
     ],
   },

@@ -21,6 +21,7 @@ import AssignEnumerator from "@/components/CreateUserForm";
 import { UserActionsDropdown } from "@/components/UserActionsDropdown";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import useUserActionsStore from "@/store/userActionsStore";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
@@ -104,22 +105,30 @@ export default function Dashboard() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!enumerator.active}
+                        <Link
+                          to={`/enumerators/${enumerator.id}/geofencing/view`}
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!enumerator.active}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!enumerator.active}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                        </Link>
+                        <Link
+                          to={`/enumerators/${enumerator.id}/geofencing/edit`}
                         >
-                          <Edit2 className="h-4 w-4 mr-2" />
-                          Edit
-                        </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!enumerator.active}
+                          >
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
+                        </Link>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
