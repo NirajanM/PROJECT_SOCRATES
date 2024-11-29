@@ -5,14 +5,46 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { center, ZOOM_LEVEL } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postData } from "@/utils/api";
 import useGeofencingStore from "@/store/geofencingStore";
-import { useParams } from "react-router-dom";
+import { Save } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import useAuthStore from "@/store/authStore";
 
 export default function EditGeofencing() {
   const { enumeratorId } = useParams();
-  const { geofencing, updateEnumeratorGeofencing } = useGeofencingStore;
-  const [mapLayers, setMapLayers] = useState(geofencing || []);
+  const navigate = useNavigate();
+  const { setGeofencing } = useGeofencingStore();
+  const {
+    user: { uid },
+  } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  const [mapLayers, setMapLayers] = useState([]);
+  const [geofencingName, setGeofencingName] = useState("");
+  const [error, setError] = useState("");
   const mapRef = useRef();
+
+  const updateGeofencingMutation = useMutation({
+    mutationFn: (geofencingData) =>
+      postData(`/geofencing/${enumeratorId}/${uid}`, geofencingData),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["geofencing", enumeratorId]);
+      setGeofencing(data);
+      setError("");
+      setGeofencingName("");
+      setMapLayers([]);
+      console.log("Geofencing data saved successfully.");
+      navigate(`/enumerators/${enumeratorId}/geofencing/view`);
+    },
+    onError: (error) => {
+      setError(`Error saving geofencing data: ${error.message}`);
+    },
+  });
 
   const handleCreated = (e) => {
     const { layerType, layer } = e;
@@ -50,18 +82,63 @@ export default function EditGeofencing() {
   };
 
   const handleSave = async () => {
-    try {
-      // Update geofencing data in Zustand and API
-      await updateEnumeratorGeofencing(enumeratorId, mapLayers);
-      console.log("Geofencing data saved successfully.");
-    } catch (error) {
-      console.error("Error saving geofencing data:", error);
+    if (!geofencingName.trim()) {
+      setError("Please enter a name for the geofencing area.");
+      return;
     }
+
+    if (mapLayers.length === 0) {
+      setError("Please draw at least one geofencing area on the map.");
+      return;
+    }
+
+    const geofencingData = {
+      name: geofencingName,
+      area: mapLayers[0].latLngs.map((coord) => ({
+        lat: coord.lat,
+        lng: coord.lng,
+      })),
+    };
+
+    updateGeofencingMutation.mutate(geofencingData);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="h-[70vh] w-full">
+    <div className="space-y-6">
+      <div className="flex items-end space-x-4">
+        <div className="flex-grow">
+          <Label htmlFor="geofencing-name" className="text-lg font-semibold">
+            Geofencing Name
+          </Label>
+          <Input
+            id="geofencing-name"
+            value={geofencingName}
+            onChange={(e) => setGeofencingName(e.target.value)}
+            placeholder="Enter geofencing area name"
+            className="mt-1"
+          />
+        </div>
+        <Button
+          onClick={handleSave}
+          disabled={
+            mapLayers.length === 0 ||
+            !geofencingName.trim() ||
+            updateGeofencingMutation.isLoading
+          }
+          className="flex-shrink-0"
+        >
+          <Save className="mr-2 h-4 w-4" />
+          {updateGeofencingMutation.isLoading ? "Saving..." : "Save Geofencing"}
+        </Button>
+      </div>
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="h-[750px] w-full border rounded-lg overflow-hidden">
         <MapContainer
           center={center}
           zoom={ZOOM_LEVEL}
@@ -83,15 +160,21 @@ export default function EditGeofencing() {
               }}
             />
           </FeatureGroup>
-
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         </MapContainer>
       </div>
-      <Button onClick={handleSave}>Save Changes</Button>
-      <pre className="text-left">{JSON.stringify(mapLayers, null, 2)}</pre>
+
+      {/* {mapLayers.length > 0 && (
+        <div className="bg-muted p-4 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">Drawn Geofencing Areas</h3>
+          <pre className="text-sm overflow-auto max-h-40">
+            {JSON.stringify(mapLayers, null, 2)}
+          </pre>
+        </div>
+      )} */}
     </div>
   );
 }

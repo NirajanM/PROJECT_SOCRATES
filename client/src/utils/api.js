@@ -27,3 +27,7 @@ export const fetchData = (url, options = {}) => {
 export const patchData = (url, data) => {
   return axiosInstance.patch(url, data).then((res) => res.data);
 };
+
+export const postData = (url, data) => {
+  return axiosInstance.post(url, data).then((res) => res.data);
+};

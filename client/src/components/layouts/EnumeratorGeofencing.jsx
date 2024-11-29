@@ -5,7 +5,12 @@ import useGeofencingStore from "@/store/geofencingStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Eye, MapPin, MapPinPlus } from "lucide-react";
+import {
+  AlertCircle,
+  Eye,
+  MapPin,
+  MapPinIcon as MapPinPlus,
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function EnumeratorGeofencing() {
@@ -31,64 +36,68 @@ export default function EnumeratorGeofencing() {
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-3xl mx-auto mt-8">
-        <CardHeader>
-          <Skeleton className="h-8 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-1/2" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[400px] w-full" />
-        </CardContent>
-      </Card>
+      <div className="container mx-auto px-4 py-8">
+        <Card className="w-full">
+          <CardHeader>
+            <Skeleton className="h-8 w-3/4 mb-2" />
+            <Skeleton className="h-4 w-1/2" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[600px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <Alert variant="destructive" className="w-full max-w-3xl mx-auto mt-8">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          Failed to fetch enumerator data: {error.message}
-        </AlertDescription>
-      </Alert>
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            Failed to fetch enumerator data: {error.message}
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto mt-8">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-bold">
-            Geofencing for {enumeratorId}
-          </CardTitle>
-          <MapPin className="h-6 w-6 text-primary" />
-        </div>
-        <p className="text-muted-foreground">
-          Manage and view geofencing data for this enumerator
-        </p>
-      </CardHeader>
-      <CardContent>
-        <Tabs
-          value={isViewMode ? "view" : "edit"}
-          onValueChange={handleModeChange}
-          className="w-full"
-        >
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="view" className="flex items-center">
-              <Eye className="mr-2 h-4 w-4" />
-              View Mode
-            </TabsTrigger>
-            <TabsTrigger value="edit" className="flex items-center">
-              <MapPinPlus className="mr-2 h-4 w-4" />
-              Assign New Geofence
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <div className="mt-6">
+    <div className="container mx-auto px-4 py-8">
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold">
+              Geofencing for Enumerator {enumeratorId}
+            </CardTitle>
+            <MapPin className="h-6 w-6 text-primary" />
+          </div>
+          <p className="text-muted-foreground">
+            Manage and view geofencing data for this enumerator
+          </p>
+        </CardHeader>
+        <CardContent>
+          <Tabs
+            value={isViewMode ? "view" : "edit"}
+            onValueChange={handleModeChange}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="view" className="flex items-center">
+                <Eye className="mr-2 h-4 w-4" />
+                View Mode
+              </TabsTrigger>
+              <TabsTrigger value="edit" className="flex items-center">
+                <MapPinPlus className="mr-2 h-4 w-4" />
+                Assign New Geofence
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <Outlet />
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
