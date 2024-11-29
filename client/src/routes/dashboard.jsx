@@ -22,6 +22,14 @@ import { UserActionsDropdown } from "@/components/UserActionsDropdown";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import useUserActionsStore from "@/store/userActionsStore";
 import { Link } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
@@ -52,8 +60,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <div className="overflow-x-auto">
+    <div className="container mx-auto py-8 px-4">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="overflow-x-auto py-4">
         <Table>
           <TableHeader>
             <TableRow>
