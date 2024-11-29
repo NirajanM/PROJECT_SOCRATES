@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postData } from "@/utils/api";
-import useGeofencingStore from "@/store/geofencingStore";
 import { Save } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
@@ -18,7 +17,6 @@ import useAuthStore from "@/store/authStore";
 export default function EditGeofencing() {
   const { enumeratorId } = useParams();
   const navigate = useNavigate();
-  const { setGeofencing } = useGeofencingStore();
   const {
     user: { uid },
   } = useAuthStore();
@@ -27,61 +25,63 @@ export default function EditGeofencing() {
   const [mapLayers, setMapLayers] = useState([]);
   const [geofencingName, setGeofencingName] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const mapRef = useRef();
 
   const updateGeofencingMutation = useMutation({
     mutationFn: (geofencingData) =>
       postData(`/geofencing/${enumeratorId}/${uid}`, geofencingData),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(["geofencing", enumeratorId]);
-      setGeofencing(data);
-      setError("");
-      setGeofencingName("");
-      setMapLayers([]);
-      console.log("Geofencing data saved successfully.");
+      resetForm();
       navigate(`/enumerators/${enumeratorId}/geofencing/view`);
     },
     onError: (error) => {
       setError(`Error saving geofencing data: ${error.message}`);
     },
+    onSettled: () => {
+      setLoading(false);
+    },
   });
+
+  const resetForm = () => {
+    setError("");
+    setGeofencingName("");
+    setMapLayers([]);
+  };
 
   const handleCreated = (e) => {
     const { layerType, layer } = e;
     if (layerType === "polygon") {
-      const { _leaflet_id } = layer;
-      setMapLayers((layers) => [
-        ...layers,
-        { id: _leaflet_id, latLngs: layer.getLatLngs()[0] },
+      setMapLayers((prevLayers) => [
+        ...prevLayers,
+        { id: layer._leaflet_id, latLngs: layer.getLatLngs()[0] },
       ]);
     }
   };
 
   const handleEdited = (e) => {
-    const {
-      layers: { _layers },
-    } = e;
-
-    Object.values(_layers).forEach(({ _leaflet_id, editing }) => {
-      setMapLayers((layers) =>
-        layers.map((l) =>
-          l.id === _leaflet_id ? { ...l, latLngs: editing.latlngs[0] } : l
-        )
-      );
-    });
+    const updatedLayers = e.layers._layers;
+    setMapLayers((prevLayers) =>
+      prevLayers.map((layer) =>
+        updatedLayers[layer.id]
+          ? {
+              ...layer,
+              latLngs: updatedLayers[layer.id].editing.latlngs[0],
+            }
+          : layer
+      )
+    );
   };
 
   const handleDeleted = (e) => {
-    const {
-      layers: { _layers },
-    } = e;
-
-    Object.values(_layers).forEach(({ _leaflet_id }) => {
-      setMapLayers((layers) => layers.filter((l) => l.id !== _leaflet_id));
-    });
+    const deletedLayerIds = Object.keys(e.layers._layers).map(Number);
+    setMapLayers((prevLayers) =>
+      prevLayers.filter((layer) => !deletedLayerIds.includes(layer.id))
+    );
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!geofencingName.trim()) {
       setError("Please enter a name for the geofencing area.");
       return;
@@ -92,12 +92,11 @@ export default function EditGeofencing() {
       return;
     }
 
+    setLoading(true);
+
     const geofencingData = {
       name: geofencingName,
-      area: mapLayers[0].latLngs.map((coord) => ({
-        lat: coord.lat,
-        lng: coord.lng,
-      })),
+      area: mapLayers[0].latLngs.map(({ lat, lng }) => ({ lat, lng })),
     };
 
     updateGeofencingMutation.mutate(geofencingData);
@@ -120,15 +119,11 @@ export default function EditGeofencing() {
         </div>
         <Button
           onClick={handleSave}
-          disabled={
-            mapLayers.length === 0 ||
-            !geofencingName.trim() ||
-            updateGeofencingMutation.isLoading
-          }
+          disabled={!geofencingName.trim() || mapLayers.length === 0 || loading}
           className="flex-shrink-0"
         >
           <Save className="mr-2 h-4 w-4" />
-          {updateGeofencingMutation.isLoading ? "Saving..." : "Save Geofencing"}
+          {loading ? "Saving..." : "Save Geofencing"}
         </Button>
       </div>
 
@@ -142,7 +137,7 @@ export default function EditGeofencing() {
         <MapContainer
           center={center}
           zoom={ZOOM_LEVEL}
-          scrollWheelZoom={true}
+          scrollWheelZoom
           ref={mapRef}
           className="h-full w-full"
         >
@@ -166,15 +161,6 @@ export default function EditGeofencing() {
           />
         </MapContainer>
       </div>
-
-      {/* {mapLayers.length > 0 && (
-        <div className="bg-muted p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Drawn Geofencing Areas</h3>
-          <pre className="text-sm overflow-auto max-h-40">
-            {JSON.stringify(mapLayers, null, 2)}
-          </pre>
-        </div>
-      )} */}
     </div>
   );
 }
