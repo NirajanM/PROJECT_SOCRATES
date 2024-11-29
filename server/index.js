@@ -15,7 +15,10 @@ import {
 } from "./controllers/userControllers.js";
 
 import authenticateToken from "./middleware/authenticateToken.js";
-import { getGeofencingData } from "./controllers/geofencingControllers.js";
+import {
+  getGeofencingData,
+  saveGeofence,
+} from "./controllers/geofencingControllers.js";
 
 const app = express();
 
@@ -60,6 +63,12 @@ app.patch(
   "/remove-supervision/:enumeratorId",
   authenticateToken,
   removeSupervision
+);
+
+app.post(
+  "/geofencing/:enumeratorId/:supervisorId",
+  authenticateToken,
+  saveGeofence
 );
 
 app.listen(config.port, () => {
