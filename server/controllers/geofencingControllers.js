@@ -4,12 +4,13 @@ const db = admin.firestore();
 
 export const getGeofencingData = async (req, res, next) => {
   const enumeratorId = req.params.enumeratorId;
-
   try {
-    // Fetch geofences where the assignedEnumerator matches the enumeratorId
+    const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
+
+    // Fetch geofences where the assignedEnumerator matches the enumerator reference
     const geofencesSnapshot = await db
       .collection("geofences")
-      .where("assignedEnumerator", "==", `/enumerators/${enumeratorId}`)
+      .where("assignedEnumerator", "==", enumeratorRef)
       .get();
 
     // Transform the Firestore snapshot into an array of geofence objects
@@ -48,11 +49,9 @@ export const saveGeofence = async (req, res) => {
     ]);
 
     if (!enumeratorDoc.exists) {
-      console.log("Enumerator not found.");
       return res.status(404).json({ error: "Enumerator not found." });
     }
     if (!supervisorDoc.exists) {
-      console.log("Supervisor not found.");
       return res.status(404).json({ error: "Supervisor not found." });
     }
 
@@ -61,8 +60,8 @@ export const saveGeofence = async (req, res) => {
     await geofenceRef.set({
       name,
       area, // Array of lat/lng objects
-      assignedEnumerator: enumeratorRef.path,
-      supervisor: supervisorRef.path,
+      assignedEnumerator: enumeratorRef,
+      supervisor: supervisorRef,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
