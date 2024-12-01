@@ -1,6 +1,7 @@
 import admin from "../lib/firebaseAdmin.js"; // Use firebase-admin for server-side operations
 
 const db = admin.firestore();
+const { GeoPoint } = admin.firestore;
 
 export const getGeofencingData = async (req, res, next) => {
   const enumeratorId = req.params.enumeratorId;
@@ -33,6 +34,7 @@ export const getGeofencingData = async (req, res, next) => {
 export const saveGeofence = async (req, res) => {
   const { enumeratorId, supervisorId } = req.params;
   const { name, area } = req.body;
+
   try {
     if (!name || !area || !Array.isArray(area)) {
       return res.status(400).json({ error: "Invalid geofence data." });
@@ -55,11 +57,19 @@ export const saveGeofence = async (req, res) => {
       return res.status(404).json({ error: "Supervisor not found." });
     }
 
+    // Convert area to Firestore GeoPoints
+    const geofenceArea = area.map(({ lat, lng }) => {
+      if (typeof lat !== "number" || typeof lng !== "number") {
+        throw new Error("Invalid latitude or longitude in area data.");
+      }
+      return new GeoPoint(lat, lng);
+    });
+
     // Save the geofence in the `geofences` collection
     const geofenceRef = db.collection("geofences").doc();
     await geofenceRef.set({
       name,
-      area, // Array of lat/lng objects
+      area: geofenceArea, // Save GeoPoints
       assignedEnumerator: enumeratorRef,
       supervisor: supervisorRef,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
