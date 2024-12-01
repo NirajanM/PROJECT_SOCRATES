@@ -21,7 +21,7 @@ import AssignEnumerator from "@/components/CreateUserForm";
 import { UserActionsDropdown } from "@/components/UserActionsDropdown";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import useUserActionsStore from "@/store/userActionsStore";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,6 +36,7 @@ export default function Dashboard() {
   const { isEnumDialogOpen, toggleEnumDialogOpen, setRefetchEnumerators } =
     useUserActionsStore();
   const [isSessionExpired, setIsSessionExpired] = useState(false);
+  const navigate = useNavigate();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["enumerators"],
@@ -64,7 +65,14 @@ export default function Dashboard() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            <BreadcrumbLink
+              onClick={() => {
+                navigate("/");
+              }}
+              className="cursor-pointer"
+            >
+              Home
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
