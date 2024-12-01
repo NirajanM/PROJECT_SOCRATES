@@ -82,7 +82,8 @@ export default function ViewGeofencing() {
                   <ul className="list-disc list-inside pl-4">
                     {geofence.area.map((coord, idx) => (
                       <li key={idx}>
-                        Lat: {coord.lat.toFixed(6)}, Lng: {coord.lng.toFixed(6)}
+                        Lat: {coord._latitude.toFixed(6)}, Lng:{" "}
+                        {coord._longitude.toFixed(6)}
                       </li>
                     ))}
                   </ul>

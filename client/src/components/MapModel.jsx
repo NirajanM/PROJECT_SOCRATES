@@ -6,15 +6,22 @@ import {
 } from "@/components/ui/dialog";
 import { MapContainer, TileLayer, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { center, ZOOM_LEVEL } from "@/lib/constants";
+import { ZOOM_LEVEL } from "@/lib/constants";
 
 export function MapModal({ isOpen, onClose, geofence }) {
   if (!geofence) return null;
 
-  const polygonCenter = geofence.area.reduce(
-    (acc, coord) => [
-      acc[0] + coord.lat / geofence.area.length,
-      acc[1] + coord.lng / geofence.area.length,
+  // Convert GeoPoint array to array of [lat, lng] pairs
+  const areaCoordinates = geofence.area.map((point) => [
+    point._latitude,
+    point._longitude,
+  ]);
+
+  // Calculate polygon center
+  const polygonCenter = areaCoordinates.reduce(
+    (acc, [lat, lng]) => [
+      acc[0] + lat / areaCoordinates.length,
+      acc[1] + lng / areaCoordinates.length,
     ],
     [0, 0]
   );
@@ -36,7 +43,7 @@ export function MapModal({ isOpen, onClose, geofence }) {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Polygon positions={geofence.area} />
+            <Polygon positions={areaCoordinates} />
           </MapContainer>
         </div>
       </DialogContent>

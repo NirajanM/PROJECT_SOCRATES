@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { fetchData } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Edit2, Plus, PlusIcon, MapPinPlus } from "lucide-react";
+import { Eye, Plus, MapPinPlus } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import AccessRestricted from "@/components/AccessRestricted";
 import { useEffect, useState } from "react";
