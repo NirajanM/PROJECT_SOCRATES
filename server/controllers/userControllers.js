@@ -26,16 +26,35 @@ export const getUsers = async (req, res, next) => {
 
 export const getEnumerators = async (req, res, next) => {
   const supervisorId = req.params.supervisorId;
+
   try {
-    const enumeratorsSnapshot = await db.collection("Enumerators").get(); // Use admin SDK's Firestore
-    const enumerators = enumeratorsSnapshot.docs
-      .map((doc) => ({ id: doc.id, ...doc.data() }))
-      .filter((user) => user.supervisor?.id === supervisorId); // Filter by supervisor reference ID
+    const supervisorRef = db.collection("supervisors").doc(supervisorId);
+    const supervisorDoc = await supervisorRef.get();
+
+    if (!supervisorDoc.exists) {
+      return res.status(404).json({ error: "Supervisor not found." });
+    }
+
+    const { assignedEnumerators } = supervisorDoc.data();
+    if (!assignedEnumerators || assignedEnumerators.length === 0) {
+      return res.status(200).json([]); // No enumerators assigned to this supervisor
+    }
+
+    // Fetch all enumerator documents using their references
+    const enumeratorDocs = await Promise.all(
+      assignedEnumerators.map((ref) => ref.get())
+    );
+
+    // Map the fetched documents to a response-friendly format
+    const enumerators = enumeratorDocs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     res.status(200).json(enumerators);
   } catch (error) {
-    console.log(error);
-    res.status(400).send(error.message);
+    console.error("Error fetching enumerators:", error);
+    res.status(500).json({ error: "Failed to fetch enumerators." });
   }
 };
 
