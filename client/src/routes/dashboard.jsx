@@ -132,30 +132,41 @@ export default function Dashboard() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Link
-                          to={`/enumerators/${enumerator.id}/geofencing/view`}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!enumerator.active}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View
-                          </Button>
-                        </Link>
-                        <Link
-                          to={`/enumerators/${enumerator.id}/geofencing/edit`}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!enumerator.active}
-                          >
-                            <MapPinPlus className="h-4 w-4 mr-2" />
-                            Assign new
-                          </Button>
-                        </Link>
+                        {enumerator.active ? (
+                          <>
+                            <Link
+                              to={`/enumerators/${enumerator.id}/geofencing/view`}
+                            >
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4 mr-2" />
+                                View
+                              </Button>
+                            </Link>
+                            <Link
+                              to={`/enumerators/${enumerator.id}/geofencing/edit`}
+                            >
+                              <Button variant="outline" size="sm">
+                                <MapPinPlus className="h-4 w-4 mr-2" />
+                                Assign new
+                              </Button>
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <div>
+                              <Button variant="outline" size="sm" disabled>
+                                <Eye className="h-4 w-4 mr-2" />
+                                View
+                              </Button>
+                            </div>
+                            <div>
+                              <Button variant="outline" size="sm" disabled>
+                                <MapPinPlus className="h-4 w-4 mr-2" />
+                                Assign new
+                              </Button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
