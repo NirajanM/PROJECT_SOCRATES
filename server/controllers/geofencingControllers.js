@@ -3,24 +3,36 @@ import admin from "../lib/firebaseAdmin.js"; // Use firebase-admin for server-si
 const db = admin.firestore();
 const { GeoPoint } = admin.firestore;
 
-export const getGeofencingData = async (req, res, next) => {
+export const getGeofencingData = async (req, res) => {
   const enumeratorId = req.params.enumeratorId;
+
   try {
+    // Get the enumerator document
     const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
+    const enumeratorDoc = await enumeratorRef.get();
 
-    // Fetch geofences where the assignedEnumerator matches the enumerator reference
-    const geofencesSnapshot = await db
-      .collection("geofences")
-      .where("assignedEnumerator", "==", enumeratorRef)
-      .get();
+    if (!enumeratorDoc.exists) {
+      return res.status(404).json({ error: "Enumerator not found." });
+    }
 
-    // Transform the Firestore snapshot into an array of geofence objects
-    const geofences = geofencesSnapshot.docs.map((doc) => ({
+    // Extract assigned geofences references
+    const { assignedGeofences } = enumeratorDoc.data();
+
+    if (!assignedGeofences || assignedGeofences.length === 0) {
+      return res.status(200).json([]); // No geofences assigned
+    }
+
+    // Resolve geofence references
+    const geofenceDocs = await Promise.all(
+      assignedGeofences.map((geofenceRef) => geofenceRef.get())
+    );
+
+    // Map geofence documents into a response format
+    const geofences = geofenceDocs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    // Send the geofences as the response
     res.status(200).json(geofences);
   } catch (error) {
     console.error("Error fetching geofencing data:", error);
