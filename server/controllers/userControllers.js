@@ -82,6 +82,11 @@ export const assignEnumerator = async (req, res) => {
       assignable: false,
     });
 
+    // Add the enumerator reference to the supervisor's `assignedEnumerators` array
+    await supervisorRef.update({
+      assignedEnumerators: admin.firestore.FieldValue.arrayUnion(enumeratorRef),
+    });
+
     res.status(200).json({ message: "Enumerator assigned successfully." });
   } catch (error) {
     res.status(500).json({ error: "Failed to assign enumerator." });

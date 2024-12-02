@@ -40,6 +40,14 @@ export const saveGeofence = async (req, res) => {
       return res.status(400).json({ error: "Invalid geofence data." });
     }
 
+    // Ensure the geofence area is a closed loop
+    const isClosedLoop =
+      area[0].lat === area[area.length - 1].lat &&
+      area[0].lng === area[area.length - 1].lng;
+    if (!isClosedLoop) {
+      area.push(area[0]); // Close the loop by adding the first point as the last point
+    }
+
     // Build references for enumerator and supervisor
     const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
     const supervisorRef = db.collection("supervisors").doc(supervisorId);
@@ -73,6 +81,10 @@ export const saveGeofence = async (req, res) => {
       assignedEnumerator: enumeratorRef,
       supervisor: supervisorRef,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await enumeratorRef.update({
+      assignedGeofences: admin.firestore.FieldValue.arrayUnion(geofenceRef),
     });
 
     res
