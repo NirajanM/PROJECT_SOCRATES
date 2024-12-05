@@ -107,3 +107,52 @@ export const saveGeofence = async (req, res) => {
     res.status(500).json({ error: "Failed to save geofence." });
   }
 };
+
+export const getLiveLocations = async (req, res) => {
+  const { supervisorId } = req.params;
+
+  try {
+    // Fetch the supervisor document
+    const supervisorRef = db.collection("supervisors").doc(supervisorId);
+    const supervisorDoc = await supervisorRef.get();
+
+    if (!supervisorDoc.exists) {
+      return res.status(404).json([]);
+    }
+
+    const { assignedEnumerators } = supervisorDoc.data();
+
+    if (!assignedEnumerators || assignedEnumerators.length === 0) {
+      return res.status(200).json([]); // Return an empty array if no enumerators assigned
+    }
+
+    // Fetch live locations for the assigned enumerators
+    const liveLocationsQuerySnapshot = await db
+      .collection("locations")
+      .where("enumeratorID", "in", assignedEnumerators)
+      .get();
+
+    if (liveLocationsQuerySnapshot.empty) {
+      return res.status(200).json([]); // Return an empty array if no live locations found
+    }
+
+    // Map live locations into the desired response format
+    const liveLocations = liveLocationsQuerySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        enumeratorID: data.enumeratorID.split("/")[2], // Extract enumerator ID from the reference
+        latitude: data.latitude,
+        longitude: data.longitude,
+        speed: data.speed,
+        heading: data.heading,
+        accuracy: data.accuracy,
+        timestamp: data.timestamp.toDate(), // Convert Firestore Timestamp to JS Date
+      };
+    });
+
+    res.status(200).json(liveLocations);
+  } catch (error) {
+    console.error("Error fetching live locations:", error);
+    res.status(200).json([]); // Return an empty array on any error
+  }
+};

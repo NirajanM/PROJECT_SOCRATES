@@ -150,13 +150,34 @@ export const removeSupervision = async (req, res) => {
   try {
     const enumeratorRef = db.collection("Enumerators").doc(enumeratorId);
 
+    // Fetch the enumerator document to get the current supervisor reference
+    const enumeratorDoc = await enumeratorRef.get();
+
+    if (!enumeratorDoc.exists) {
+      return res.status(404).json({ error: "Enumerator not found." });
+    }
+
+    const { supervisor } = enumeratorDoc.data();
+
+    if (!supervisor) {
+      return res.status(400).json({ error: "Enumerator is not supervised." });
+    }
+
+    // Update the enumerator to remove supervision and make them assignable
     await enumeratorRef.update({
       supervisor: admin.firestore.FieldValue.delete(),
       assignable: true,
     });
 
+    // Remove the enumerator reference from the supervisor's `assignedEnumerators` array
+    await supervisor.update({
+      assignedEnumerators:
+        admin.firestore.FieldValue.arrayRemove(enumeratorRef),
+    });
+
     res.status(200).json({ message: "Supervision removed successfully." });
   } catch (error) {
+    console.error("Error removing supervision:", error);
     res.status(500).json({ error: "Failed to remove supervision." });
   }
 };
