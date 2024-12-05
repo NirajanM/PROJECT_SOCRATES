@@ -15,6 +15,7 @@ import Dashboard from "./routes/dashboard";
 import EnumeratorGeofencing from "./components/layouts/EnumeratorGeofencing";
 import ViewGeofencing from "./routes/ViewGeofencing";
 import EditGeofencing from "./routes/EditGeofencing";
+import LiveLocationsMap from "./routes/LiveLocations";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "live-locations",
+        element: <LiveLocationsMap />,
       },
       {
         path: "enumerators/:enumeratorId/geofencing",

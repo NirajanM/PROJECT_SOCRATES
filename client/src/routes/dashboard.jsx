@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { fetchData } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Plus, MapPinPlus } from "lucide-react";
+import { Eye, Plus, MapPinPlus, MapPin } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import AccessRestricted from "@/components/AccessRestricted";
 import { useEffect, useState } from "react";
@@ -60,26 +60,41 @@ export default function Dashboard() {
     return <AccessRestricted sessionExpired={isSessionExpired} />;
   }
 
+  const hasEnumerators = data && data.length > 0;
+
   return (
     <div className="container mx-auto py-8 px-4">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              onClick={() => {
-                navigate("/");
-              }}
-              className="cursor-pointer"
-            >
-              Home
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Dashboard</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row items-start sm:justify-between sm:items-start">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                onClick={() => {
+                  navigate("/");
+                }}
+                className="cursor-pointer"
+              >
+                Home
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Dashboard</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        {hasEnumerators && (
+          <Button
+            onClick={() => navigate("/live-locations")}
+            className="flex items-center"
+            variant="outline"
+            size="sm"
+          >
+            <MapPin className="mr-2 h-4 w-4" />
+            View Live Locations
+          </Button>
+        )}
+      </div>
       <div className="overflow-x-auto py-4">
         <Table>
           <TableHeader>
