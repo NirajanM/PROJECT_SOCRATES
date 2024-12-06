@@ -139,16 +139,10 @@ export const getLiveLocations = async (req, res) => {
     // Map live locations into the desired response format
     const liveLocations = liveLocationsQuerySnapshot.docs.map((doc) => {
       const data = doc.data();
-      return {
-        enumeratorID: data.enumeratorID.split("/")[2], // Extract enumerator ID from the reference
-        latitude: data.latitude,
-        longitude: data.longitude,
-        speed: data.speed,
-        heading: data.heading,
-        accuracy: data.accuracy,
-        timestamp: data.timestamp.toDate(), // Convert Firestore Timestamp to JS Date
-      };
+      return data;
     });
+
+    console.log(liveLocations);
 
     res.status(200).json(liveLocations);
   } catch (error) {
