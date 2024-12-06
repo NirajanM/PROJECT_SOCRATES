@@ -17,6 +17,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const createMapPinIcon = (color = "#1d4ed8") => {
   const svgIcon = `
@@ -35,6 +36,22 @@ const createMapPinIcon = (color = "#1d4ed8") => {
   });
 };
 
+const parseTimestamp = (timestamp) => {
+  if (timestamp && typeof timestamp === "object" && timestamp._seconds) {
+    // Firestore Timestamp object
+    return new Date(timestamp._seconds * 1000).toLocaleString();
+  } else if (timestamp && typeof timestamp === "object" && timestamp.seconds) {
+    // Firestore Timestamp-like object
+    return new Date(timestamp.seconds * 1000).toLocaleString();
+  } else if (timestamp && !isNaN(new Date(timestamp).getTime())) {
+    // Valid date string or number
+    return new Date(timestamp).toLocaleString();
+  } else {
+    // Fallback for invalid or missing timestamp
+    return "Unknown";
+  }
+};
+
 export default function LiveLocationsMap() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -48,22 +65,6 @@ export default function LiveLocationsMap() {
   const handleRefresh = () => {
     refetch();
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        Loading...
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        Error: {error.message}
-      </div>
-    );
-  }
 
   const isEmptyData = !data || data.length === 0;
 
@@ -105,7 +106,18 @@ export default function LiveLocationsMap() {
           Refresh Locations
         </Button>
       </div>
-      {isEmptyData && (
+
+      {isLoading ? (
+        <div className="bg-white rounded-lg shadow-md p-4 my-8">
+          <Skeleton className="h-[calc(100vh-16rem)] w-full rounded-md" />
+        </div>
+      ) : isError ? (
+        <Alert variant="destructive" className="my-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error.message}</AlertDescription>
+        </Alert>
+      ) : isEmptyData ? (
         <Alert className="my-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>No Active Enumerators</AlertTitle>
@@ -114,22 +126,25 @@ export default function LiveLocationsMap() {
             available.
           </AlertDescription>
         </Alert>
-      )}
-      <div className="bg-white rounded-lg shadow-md my-8">
-        <div className="h-[calc(100vh-12rem)] w-full">
-          <MapContainer
-            center={center}
-            zoom={ZOOM_LEVEL}
-            className="h-full w-full rounded-md"
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {!isEmptyData &&
-              data.map((enumerator) => (
+      ) : (
+        <div className="bg-white rounded-lg shadow-md my-8">
+          <div className="h-[calc(100vh-12rem)] w-full">
+            <MapContainer
+              center={center}
+              zoom={ZOOM_LEVEL}
+              className="h-full w-full rounded-md"
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {data.map((enumerator) => (
                 <Marker
-                  key={enumerator.enumeratorID}
+                  key={
+                    enumerator.enumeratorID._path
+                      ? enumerator.enumeratorID._path.segments.join("/")
+                      : "unknown"
+                  }
                   position={[enumerator.latitude, enumerator.longitude]}
                   icon={createMapPinIcon()}
                 >
@@ -140,7 +155,9 @@ export default function LiveLocationsMap() {
                       </h3>
                       <p>
                         <span className="font-semibold">ID:</span>{" "}
-                        {enumerator.enumeratorID}
+                        {enumerator.enumeratorID._path
+                          ? enumerator.enumeratorID._path.segments.join("/")
+                          : "Unknown"}
                       </p>
                       <p>
                         <span className="font-semibold">Latitude:</span>{" "}
@@ -164,15 +181,16 @@ export default function LiveLocationsMap() {
                       </p>
                       <p>
                         <span className="font-semibold">Last Updated:</span>{" "}
-                        {new Date(enumerator.timestamp).toLocaleString()}
+                        {parseTimestamp(enumerator.timestamp)}
                       </p>
                     </div>
                   </Popup>
                 </Marker>
               ))}
-          </MapContainer>
+            </MapContainer>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
