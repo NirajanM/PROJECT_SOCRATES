@@ -89,7 +89,9 @@ export default function ViewGeofencing() {
                   </ul>
                 </div>
                 <Button
-                  onClick={() => setSelectedGeofence(geofence)}
+                  onClick={() => {
+                    setSelectedGeofence(geofence);
+                  }}
                   className="mt-2"
                 >
                   View on Map
