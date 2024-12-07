@@ -16,6 +16,7 @@ import {
 
 import authenticateToken from "./middleware/authenticateToken.js";
 import {
+  getCollectedData,
   getGeofencingData,
   getLiveLocations,
   saveGeofence,
@@ -43,6 +44,8 @@ app.get("/assignable-enumerators", authenticateToken, getAssignableEnumerators);
 app.get("/geofencing/:enumeratorId", getGeofencingData);
 
 app.get("/live-locations/:supervisorId", authenticateToken, getLiveLocations);
+
+app.get("/collected-data/:geofenceId", authenticateToken, getCollectedData);
 
 app.patch(
   "/assign-enumerator/:enumeratorId",

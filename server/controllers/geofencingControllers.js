@@ -150,3 +150,30 @@ export const getLiveLocations = async (req, res) => {
     res.status(200).json([]); // Return an empty array on any error
   }
 };
+
+export const getCollectedData = async (req, res) => {
+  const { geofenceId } = req.params;
+
+  try {
+    // Query Firestore to fetch collected data related to the geofence
+    const collectedDataQuerySnapshot = await db
+      .collection("collectedInformation")
+      .where("geofenceRef", "==", db.collection("geofences").doc(geofenceId))
+      .get();
+
+    if (collectedDataQuerySnapshot.empty) {
+      return res.status(200).json([]); // Return an empty array if no data is found
+    }
+
+    // Map the Firestore data into a response format
+    const collectedData = collectedDataQuerySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return data;
+    });
+    console.log(collectedData);
+    res.status(200).json(collectedData);
+  } catch (error) {
+    console.error("Error fetching collected data:", error);
+    res.status(500).json([]);
+  }
+};
