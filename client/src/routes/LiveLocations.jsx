@@ -59,7 +59,7 @@ export default function LiveLocationsMap() {
     queryKey: ["liveLocations"],
     queryFn: () => fetchData(`/live-locations/${user?.uid}`),
     enabled: !!user?.uid,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 600000, // Refetch every 30 seconds
   });
 
   const handleRefresh = () => {
