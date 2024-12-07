@@ -41,7 +41,7 @@ export default function Home() {
                   className="text-sm sm:text-base w-full sm:w-auto"
                 >
                   <a
-                    href="https://github.com/HimalThapaMagar?tab=repositories"
+                    href="https://drive.google.com/file/d/1OyuKjsf5A1Rzk3Bqk7ReO3UIf7z_OqQJ/view?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
