@@ -16,6 +16,7 @@ import EnumeratorGeofencing from "./components/layouts/EnumeratorGeofencing";
 import ViewGeofencing from "./routes/ViewGeofencing";
 import EditGeofencing from "./routes/EditGeofencing";
 import LiveLocationsMap from "./routes/LiveLocations";
+import CollectedDataView from "./routes/CollectedDataView";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
           {
             path: "edit",
             element: <EditGeofencing />,
+          },
+          {
+            path: ":geofenceId/collected-data",
+            element: <CollectedDataView />,
           },
         ],
       },

@@ -68,7 +68,7 @@ export function MapModal({ isOpen, onClose, geofence }) {
             <Polygon positions={areaCoordinates} />
             {showMarkers &&
               collectedData &&
-              collectedData.map((item, index) => (
+              collectedData.map((item) => (
                 <Marker
                   key={item.id}
                   position={[item.location.latitude, item.location.longitude]}

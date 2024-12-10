@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "@/utils/api";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { MapModal } from "@/components/MapModel";
 
 export default function ViewGeofencing() {
   const { enumeratorId } = useParams();
+  const navigate = useNavigate();
   const [selectedGeofence, setSelectedGeofence] = useState(null);
 
   const { isLoading, isError, error, data } = useQuery({
@@ -88,14 +89,26 @@ export default function ViewGeofencing() {
                     ))}
                   </ul>
                 </div>
-                <Button
-                  onClick={() => {
-                    setSelectedGeofence(geofence);
-                  }}
-                  className="mt-2"
-                >
-                  View on Map
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={() => {
+                      setSelectedGeofence(geofence);
+                    }}
+                    className="mt-2"
+                  >
+                    View on Map
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      navigate(
+                        `/enumerators/${enumeratorId}/geofencing/${geofence.id}/collected-data`
+                      );
+                    }}
+                    className="mt-2"
+                  >
+                    View Collected Data
+                  </Button>
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
