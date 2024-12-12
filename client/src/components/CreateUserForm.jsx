@@ -13,11 +13,13 @@ import useAuthStore from "../store/authStore";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchData, patchData } from "@/utils/api";
 import useUserActionsStore from "@/store/userActionsStore";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AssignEnumerator() {
   const { user } = useAuthStore();
   const { closeEnumDialog, triggerRefetchEnumerators } = useUserActionsStore();
   const [errorMessage, setErrorMessage] = useState("");
+  const { toast } = useToast();
 
   const {
     data: enumerators,
@@ -32,12 +34,22 @@ export default function AssignEnumerator() {
     mutationFn: ({ enumeratorId, supervisorId }) =>
       patchData(`/assign-enumerator/${enumeratorId}`, { supervisorId }), // Send supervisorId with enumeratorId
     onSuccess: () => {
-      alert("Enumerator assigned successfully!");
+      toast({
+        title: "Success",
+        description: "Enumerator assigned successfully!",
+        variant: "default",
+      });
       closeEnumDialog();
       triggerRefetchEnumerators();
     },
     onError: (error) => {
-      setErrorMessage(error.message || "Failed to assign enumerator.");
+      const message = error.message || "Failed to assign enumerator.";
+      setErrorMessage(message);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
     },
   });
 

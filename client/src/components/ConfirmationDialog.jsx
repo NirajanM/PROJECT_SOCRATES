@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import useUserActionsStore from "@/store/userActionsStore";
 import { useMutation } from "@tanstack/react-query";
 import { patchData } from "@/utils/api";
+import { useToast } from "@/hooks/use-toast";
 
 export function ConfirmationDialog() {
   const {
@@ -26,10 +27,16 @@ export function ConfirmationDialog() {
   const isConfirmTextValid =
     confirmationText.trim().toLowerCase() === "confirm";
 
+  const { toast } = useToast();
+
   // Common onSuccess handler for both actions
   const handleSuccess = (message) => {
     closeConfirmationDialog();
     setConfirmationText("");
+    toast({
+      title: "Successful",
+      description: message,
+    });
     triggerRefetchEnumerators();
   };
 
