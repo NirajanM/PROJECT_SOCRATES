@@ -13,12 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useAuthStore from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, error, loading } = useAuthStore();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,8 +30,18 @@ export default function LoginPage() {
     }
     try {
       await login(email, password, navigate);
+      toast({
+        title: "Login Successful",
+        description: "All features unlocked.",
+      });
     } catch (error) {
       console.error("Signup error:", error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description:
+          error.message || "An error occurred during login. Please try again.",
+      });
     }
   };
 

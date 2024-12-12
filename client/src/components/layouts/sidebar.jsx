@@ -13,14 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useAuthStore from "@/store/authStore";
+import SocratesLogo from "@/assets/Socrates-logo-big.png";
 
 function UserAvatar({ user }) {
   if (!user) {
+    // Use a friendly icon for the guest avatar
     return (
-      <Avatar className="">
-        <AvatarImage src="https://github.com/shadcn.png" alt="Guest avatar" />
-        <AvatarFallback className="bg-gray-400/90 text-white">
-          <User className="h-4 w-4" />
+      <Avatar>
+        <AvatarFallback className="bg-slate-400/90 text-white">
+          <User className="h-6 w-6" />
         </AvatarFallback>
       </Avatar>
     );
@@ -31,7 +32,7 @@ function UserAvatar({ user }) {
     : "";
 
   return (
-    <Avatar className="">
+    <Avatar>
       <AvatarImage src={user?.photoURL} alt={user.email} />
       <AvatarFallback delayMs={600} className="bg-gray-400/90 text-white">
         {initials || <User className="h-4 w-4" />}
@@ -132,7 +133,7 @@ export default function LayoutWithSidebar() {
               navigate("/");
             }}
           >
-            SOCRATES
+            <img src={SocratesLogo} className="h-11" />
           </h2>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

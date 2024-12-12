@@ -77,6 +77,7 @@ const useAuthStore = create(
         navigate("/login");
       } catch (error) {
         set({ error: error.message, loading: false });
+        throw error;
       }
     },
 
@@ -113,6 +114,7 @@ const useAuthStore = create(
         navigate("/");
       } catch (error) {
         set({ error: error.message, loading: false });
+        throw error;
       }
     },
 

@@ -17,6 +17,7 @@ import ViewGeofencing from "./routes/ViewGeofencing";
 import EditGeofencing from "./routes/EditGeofencing";
 import LiveLocationsMap from "./routes/LiveLocations";
 import CollectedDataView from "./routes/CollectedDataView";
+import { Toaster } from "./components/ui/toaster";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster />
       <ReactQueryDevtools />
     </QueryClientProvider>
   );

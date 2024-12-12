@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,34 +12,37 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import useAuthStore from "../store/authStore";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [name, setName] = useState("");
   const navigate = useNavigate();
+  const { signup, loading } = useAuthStore();
+  const { toast } = useToast();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
 
-  const { signup, error, loading } = useAuthStore();
+  const password = watch("password");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!name || !email || !password || !confirmPassword) {
-      alert("Please fill in all fields");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
-      await signup(email, password, name, navigate);
+      await signup(data.email, data.password, data.name, navigate);
+      toast({
+        title: "Sign Up Successful",
+        description: "Please log in with your new account.",
+      });
     } catch (error) {
       console.error("Signup error:", error);
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description:
+          error.message || "An error occurred during signup. Please try again.",
+      });
     }
   };
 
@@ -54,7 +56,7 @@ export default function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="name">Name</Label>
@@ -62,9 +64,17 @@ export default function SignupPage() {
                   id="name"
                   type="text"
                   placeholder="Your full name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  {...register("name", {
+                    required: "Name is required",
+                    pattern: {
+                      value: /^[A-Za-z\s]+$/,
+                      message: "Name should contain only letters and spaces",
+                    },
+                  })}
                 />
+                {errors.name && (
+                  <p className="text-sm text-red-500">{errors.name.message}</p>
+                )}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Email</Label>
@@ -72,30 +82,55 @@ export default function SignupPage() {
                   id="email"
                   type="email"
                   placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /\S+@\S+\.\S+/,
+                      message: "Invalid email address",
+                    },
+                  })}
                 />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                )}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters",
+                    },
+                  })}
                 />
+                {errors.password && (
+                  <p className="text-sm text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  {...register("confirmPassword", {
+                    required: "Please confirm your password",
+                    validate: (value) =>
+                      value === password || "Passwords do not match",
+                  })}
                 />
+                {errors.confirmPassword && (
+                  <p className="text-sm text-red-500">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
               </div>
             </div>
-            {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
             <Button className="w-full mt-4" type="submit" disabled={loading}>
               {loading ? "Signing Up..." : "Sign Up"}
             </Button>
