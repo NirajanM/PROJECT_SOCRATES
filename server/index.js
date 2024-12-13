@@ -31,48 +31,56 @@ app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-// app.get("/users", getUsers);
+// app.get("/api/users", getUsers);
 
-// app.post("/createuser", createUser);
+// app.post("/api/createuser", createUser);
 
-// app.delete("/deleteuser/:uid", deleteUser);
+// app.delete("/api/deleteuser/:uid", deleteUser);
 
-app.get("/enumerators/:supervisorId", authenticateToken, getEnumerators);
+app.get("/api/enumerators/:supervisorId", authenticateToken, getEnumerators);
 
-app.get("/assignable-enumerators", authenticateToken, getAssignableEnumerators);
+app.get(
+  "/api/assignable-enumerators",
+  authenticateToken,
+  getAssignableEnumerators
+);
 
-app.get("/geofencing/:enumeratorId", getGeofencingData);
+app.get("/api/geofencing/:enumeratorId", getGeofencingData);
 
-app.get("/live-locations/:supervisorId", authenticateToken, getLiveLocations);
+app.get(
+  "/api/live-locations/:supervisorId",
+  authenticateToken,
+  getLiveLocations
+);
 
-app.get("/collected-data/:geofenceId", authenticateToken, getCollectedData);
+app.get("/api/collected-data/:geofenceId", authenticateToken, getCollectedData);
 
 app.patch(
-  "/assign-enumerator/:enumeratorId",
+  "/api/assign-enumerator/:enumeratorId",
   authenticateToken,
   assignEnumerator
 );
 
 app.patch(
-  "/deactivate-enumerator/:enumeratorId",
+  "/api/deactivate-enumerator/:enumeratorId",
   authenticateToken,
   deactivateEnumerator
 );
 
 app.patch(
-  "/activate-enumerator/:enumeratorId",
+  "/api/activate-enumerator/:enumeratorId",
   authenticateToken,
   activateEnumerator
 );
 
 app.patch(
-  "/remove-supervision/:enumeratorId",
+  "/api/remove-supervision/:enumeratorId",
   authenticateToken,
   removeSupervision
 );
 
 app.post(
-  "/geofencing/:enumeratorId/:supervisorId",
+  "/api/geofencing/:enumeratorId/:supervisorId",
   authenticateToken,
   saveGeofence
 );
