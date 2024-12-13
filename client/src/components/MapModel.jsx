@@ -11,6 +11,20 @@ import { MapContainer, TileLayer, Polygon, Marker, Popup } from "react-leaflet";
 import { fetchData } from "@/utils/api";
 import "leaflet/dist/leaflet.css";
 import { center, ZOOM_LEVEL } from "@/lib/constants";
+import L from "leaflet";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+// Fix default icon for Leaflet
+const DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41], // Default size for Leaflet marker
+  iconAnchor: [12, 41], // Point of the icon that should correspond to the marker's location
+  popupAnchor: [1, -34], // Point where the popup should open relative to the iconAnchor
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 export function MapModal({ isOpen, onClose, geofence }) {
   const [showMarkers, setShowMarkers] = useState(true);
