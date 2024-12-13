@@ -82,7 +82,7 @@ export const getAssignableEnumerators = async (req, res) => {
 
     res.status(200).json(enumerators);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Failed to fetch assignable enumerators." });
   }
 };

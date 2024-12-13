@@ -142,8 +142,6 @@ export const getLiveLocations = async (req, res) => {
       return data;
     });
 
-    console.log(liveLocations);
-
     res.status(200).json(liveLocations);
   } catch (error) {
     console.error("Error fetching live locations:", error);
@@ -170,7 +168,6 @@ export const getCollectedData = async (req, res) => {
       const data = doc.data();
       return data;
     });
-    console.log(collectedData);
     res.status(200).json(collectedData);
   } catch (error) {
     console.error("Error fetching collected data:", error);
