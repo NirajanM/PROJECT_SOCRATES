@@ -174,3 +174,45 @@ export const getCollectedData = async (req, res) => {
     res.status(500).json([]);
   }
 };
+
+export const archiveGeofence = async (req, res) => {
+  const { geofenceId } = req.params;
+
+  try {
+    // Reference to the geofence document
+    const geofenceRef = db.collection("geofences").doc(geofenceId);
+    const geofenceDoc = await geofenceRef.get();
+
+    if (!geofenceDoc.exists) {
+      return res.status(404).json({ error: "Geofence not found." });
+    }
+
+    const geofenceData = geofenceDoc.data();
+
+    // Update the geofence's status by adding an "archived" field
+    await geofenceRef.update({
+      archived: true, // Mark as archived
+      archivedAt: admin.firestore.FieldValue.serverTimestamp(), // Timestamp for archival
+    });
+
+    // Reference to the assigned enumerator
+    const assignedEnumeratorRef = geofenceData.assignedEnumerator;
+    const enumeratorDoc = await assignedEnumeratorRef.get();
+
+    if (!enumeratorDoc.exists) {
+      return res.status(404).json({ error: "Assigned enumerator not found." });
+    }
+
+    // Remove the geofence reference from the enumerator's assignedGeofences array
+    await assignedEnumeratorRef.update({
+      assignedGeofences: admin.firestore.FieldValue.arrayRemove(geofenceRef),
+    });
+
+    res.status(200).json({
+      message: "Geofence archived and removed from enumerator successfully.",
+    });
+  } catch (error) {
+    console.error("Error archiving geofence:", error);
+    res.status(500).json({ error: "Failed to archive geofence." });
+  }
+};
