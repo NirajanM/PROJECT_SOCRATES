@@ -16,10 +16,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Eye, Plus, MapPinPlus, MapPin } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import AccessRestricted from "@/components/AccessRestricted";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AssignEnumerator from "@/components/CreateUserForm";
 import { UserActionsDropdown } from "@/components/UserActionsDropdown";
-import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import useUserActionsStore from "@/store/userActionsStore";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -33,12 +32,11 @@ import {
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
-  const { isEnumDialogOpen, toggleEnumDialogOpen, setRefetchEnumerators } =
-    useUserActionsStore();
+  const { isEnumDialogOpen, toggleEnumDialogOpen } = useUserActionsStore();
   const [isSessionExpired, setIsSessionExpired] = useState(false);
   const navigate = useNavigate();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["enumerators"],
     queryFn: () => fetchData(`/enumerators/${user?.uid}`),
     enabled: !!user?.uid,
@@ -51,10 +49,6 @@ export default function Dashboard() {
       }
     },
   });
-
-  useEffect(() => {
-    setRefetchEnumerators(refetch); // Store the refetch function in Zustand
-  }, [refetch, setRefetchEnumerators]);
 
   if (!user) {
     return <AccessRestricted sessionExpired={isSessionExpired} />;
@@ -217,8 +211,6 @@ export default function Dashboard() {
           </TableBody>
         </Table>
       </div>
-
-      <ConfirmationDialog />
     </div>
   );
 }

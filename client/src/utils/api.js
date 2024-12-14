@@ -31,3 +31,7 @@ export const patchData = (url, data) => {
 export const postData = (url, data) => {
   return axiosInstance.post(url, data).then((res) => res.data);
 };
+
+export const deleteData = (url, data) => {
+  return axiosInstance.delete(url, data).then((res) => res.data);
+};

@@ -10,17 +10,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, UserPlus } from "lucide-react";
 import useAuthStore from "../store/authStore";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchData, patchData } from "@/utils/api";
 import useUserActionsStore from "@/store/userActionsStore";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AssignEnumerator() {
   const { user } = useAuthStore();
-  const { closeEnumDialog, triggerRefetchEnumerators } = useUserActionsStore();
+  const { closeEnumDialog } = useUserActionsStore();
   const [errorMessage, setErrorMessage] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient(); // React Query's query client
 
+  // Fetch assignable enumerators
   const {
     data: enumerators,
     isLoading: isFetching,
@@ -30,9 +32,10 @@ export default function AssignEnumerator() {
     queryFn: () => fetchData("/assignable-enumerators"),
   });
 
+  // Mutation to assign an enumerator
   const { mutate: assignEnumerator, isLoading: isAssigning } = useMutation({
     mutationFn: ({ enumeratorId, supervisorId }) =>
-      patchData(`/assign-enumerator/${enumeratorId}`, { supervisorId }), // Send supervisorId with enumeratorId
+      patchData(`/assign-enumerator/${enumeratorId}`, { supervisorId }), // Pass supervisorId with enumeratorId
     onSuccess: () => {
       toast({
         title: "Success",
@@ -40,7 +43,7 @@ export default function AssignEnumerator() {
         variant: "default",
       });
       closeEnumDialog();
-      triggerRefetchEnumerators();
+      queryClient.invalidateQueries(["assignableEnumerators"]); // Invalidate query to trigger UI update
     },
     onError: (error) => {
       const message = error.message || "Failed to assign enumerator.";
@@ -53,6 +56,7 @@ export default function AssignEnumerator() {
     },
   });
 
+  // Handle enumerator assignment
   const handleAssign = (enumeratorId) => {
     if (!user) {
       setErrorMessage(
@@ -63,6 +67,7 @@ export default function AssignEnumerator() {
     assignEnumerator({ enumeratorId, supervisorId: user.uid }); // Pass supervisor's UID here
   };
 
+  // Set error message if fetching enumerators fails
   useEffect(() => {
     if (fetchError) {
       setErrorMessage(fetchError.message || "Failed to fetch enumerators.");

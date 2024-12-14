@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import useUserActionsStore from "@/store/userActionsStore";
-import { useMutation } from "@tanstack/react-query";
 import { patchData } from "@/utils/api";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function ConfirmationDialog() {
   const {
@@ -20,7 +20,6 @@ export function ConfirmationDialog() {
     actionType,
     isConfirmationDialogOpen,
     closeConfirmationDialog,
-    triggerRefetchEnumerators,
   } = useUserActionsStore();
 
   const [confirmationText, setConfirmationText] = useState("");
@@ -28,8 +27,8 @@ export function ConfirmationDialog() {
     confirmationText.trim().toLowerCase() === "confirm";
 
   const { toast } = useToast();
+  const queryClient = useQueryClient(); // React Query client for managing queries
 
-  // Common onSuccess handler for both actions
   const handleSuccess = (message) => {
     closeConfirmationDialog();
     setConfirmationText("");
@@ -37,52 +36,54 @@ export function ConfirmationDialog() {
       title: "Successful",
       description: message,
     });
-    triggerRefetchEnumerators();
+    // Invalidate all queries related to enumerators
+    queryClient.invalidateQueries(["enumerators"]);
+    queryClient.invalidateQueries(["geofencing"]);
   };
 
-  const activateUserMutation = useMutation({
-    mutationFn: () => patchData(`/activate-enumerator/${selectedUser.id}`),
-    onSuccess: () =>
-      handleSuccess(`User ${selectedUser.name} activated successfully.`),
-    onError: (error) => {
-      console.error("Activation failed:", error);
+  const actionConfig = {
+    deactivate: {
+      mutationFn: () => patchData(`/deactivate-enumerator/${selectedUser.id}`),
+      successMessage: `User deactivated successfully.`,
     },
-  });
-
-  const deactivateUserMutation = useMutation({
-    mutationFn: () => patchData(`/deactivate-enumerator/${selectedUser.id}`),
-    onSuccess: () =>
-      handleSuccess(`User ${selectedUser.name} deactivated successfully.`),
-    onError: (error) => {
-      console.error("Deactivation failed:", error);
+    activate: {
+      mutationFn: () => patchData(`/activate-enumerator/${selectedUser.id}`),
+      successMessage: `User activated successfully.`,
     },
-  });
-
-  const removeSupervisionMutation = useMutation({
-    mutationFn: () => patchData(`/remove-supervision/${selectedUser.id}`),
-    onSuccess: () =>
-      handleSuccess(`Supervision removed for user ${selectedUser.name}.`),
-    onError: (error) => {
-      console.error("Supervision removal failed:", error);
+    remove: {
+      mutationFn: () => patchData(`/remove-supervision/${selectedUser.id}`),
+      successMessage: `User removed successfully.`,
     },
-  });
-
-  const handleActionConfirm = () => {
-    if (!selectedUser || !actionType) return;
-
-    if (actionType === "deactivate") {
-      deactivateUserMutation.mutate();
-    } else if (actionType === "activate") {
-      activateUserMutation.mutate();
-    } else if (actionType === "remove") {
-      removeSupervisionMutation.mutate();
-    }
+    delete_geo: {
+      mutationFn: () => patchData(`/remove-geofence/${selectedUser}`),
+      successMessage: `Geofence deleted successfully.`,
+    },
   };
+
+  const mutation = useMutation({
+    mutationFn: actionConfig[actionType]?.mutationFn,
+    onSuccess: () => handleSuccess(actionConfig[actionType]?.successMessage),
+    onError: (error) => {
+      console.error(`${actionType} action failed:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to perform action: ${error.message || "Unknown"}`,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = () => {
-    if (isConfirmTextValid) {
-      handleActionConfirm();
+    if (isConfirmTextValid && actionConfig[actionType]) {
+      mutation.mutate();
     }
+  };
+
+  const dialogTitleMap = {
+    deactivate: "Deactivate User",
+    activate: "Activate User",
+    remove: "Remove from Supervision",
+    delete_geo: "Remove Geofence",
   };
 
   return (
@@ -92,13 +93,7 @@ export function ConfirmationDialog() {
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {actionType === "deactivate"
-              ? "Deactivate User"
-              : actionType === "activate"
-              ? "Activate User"
-              : "Remove from Supervision"}
-          </DialogTitle>
+          <DialogTitle>{dialogTitleMap[actionType]}</DialogTitle>
           <DialogDescription>
             This action cannot be undone. Please type <strong>confirm</strong>{" "}
             to proceed.
@@ -115,20 +110,11 @@ export function ConfirmationDialog() {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={
-              !isConfirmTextValid ||
-              deactivateUserMutation.isLoading ||
-              removeSupervisionMutation.isLoading
-            }
+            disabled={!isConfirmTextValid || mutation.isLoading}
           >
-            {deactivateUserMutation.isLoading ||
-            removeSupervisionMutation.isLoading
+            {mutation.isLoading
               ? "Processing..."
-              : actionType === "deactivate"
-              ? "Deactivate"
-              : actionType === "activate"
-              ? "Activate"
-              : "Remove"}
+              : dialogTitleMap[actionType]?.split(" ")[0]}
           </Button>
         </DialogFooter>
       </DialogContent>

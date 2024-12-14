@@ -11,13 +11,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Trash2 } from "lucide-react";
 import { MapModal } from "@/components/MapModel";
+import useUserActionsStore from "@/store/userActionsStore";
 
 export default function ViewGeofencing() {
   const { enumeratorId } = useParams();
   const navigate = useNavigate();
   const [selectedGeofence, setSelectedGeofence] = useState(null);
+  const { setUserActionSelection } = useUserActionsStore();
 
   const { isLoading, isError, error, data } = useQuery({
     queryKey: ["geofencing", enumeratorId],
@@ -107,6 +109,16 @@ export default function ViewGeofencing() {
                     className="mt-2"
                   >
                     View Collected Data
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setUserActionSelection(geofence.id, "delete_geo");
+                    }}
+                    className="mt-2"
+                    variant="destructive"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Geofence
                   </Button>
                 </div>
               </div>
